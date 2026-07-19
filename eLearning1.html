@@ -1,0 +1,372 @@
+<!-- Interactive Change Management Flashcards Component -->
+<!-- Description: Place this inside an Articulate Rise 360 Multimedia Embed or Code Snippet block. -->
+<link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* Defensive base spacing to prevent vertical scrollbars in standard Rise wrappers */
+  body {
+    margin: 0;
+    padding: 0 0 40px 0;
+    background-color: transparent;
+  }
+
+  /* Style Bleed Prevention */
+  #custom-container-cmfc,
+  #custom-container-cmfc * {
+    box-sizing: border-box;
+  }
+
+  /* Strict Width Constraints & Layout */
+  #custom-container-cmfc {
+    font-family: 'Urbanist', sans-serif;
+    background-color: #F4F7FA;
+    max-width: 800px;
+    width: calc(100% - 32px);
+    margin: 24px auto;
+    border-radius: 8px;
+    padding: 32px;
+    color: #0F2347;
+    border: 1px solid #0F2347;
+  }
+
+  .cmfc-header {
+    text-align: center;
+    margin-bottom: 24px;
+  }
+
+  .cmfc-header h2 {
+    color: #1B3A6B;
+    font-weight: 800;
+    margin: 0 0 8px 0;
+    font-size: 24px;
+  }
+
+  .cmfc-header p {
+    color: #0F2347;
+    margin: 0;
+    font-size: 15px;
+    opacity: 0.8;
+  }
+
+  /* Flashcard Grid Match */
+  .cmfc-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    perspective: 1000px;
+  }
+
+  /* 3D Flip Card Container */
+  .cmfc-card {
+    height: 120px;
+    position: relative;
+    cursor: pointer;
+  }
+
+  .cmfc-card-inner {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .cmfc-card.flipped .cmfc-card-inner {
+    transform: rotateY(180deg);
+  }
+
+  /* Card Sides styling */
+  .cmfc-front, .cmfc-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 8px;
+    background: #FFFFFF;
+    border: 1px solid rgba(15, 35, 71, 0.1);
+    box-shadow: 0 4px 6px rgba(15, 35, 71, 0.05);
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .cmfc-card:hover .cmfc-front {
+    border-color: #CC2229;
+    box-shadow: 0 6px 12px rgba(204, 34, 41, 0.15);
+  }
+
+  .cmfc-back {
+    background-color: #1B3A6B;
+    color: #FFFFFF;
+    transform: rotateY(180deg);
+    font-size: 13px;
+    line-height: 1.4;
+    font-weight: 400;
+    justify-content: center;
+    text-align: center;
+    padding: 16px;
+    border-color: #0F2347;
+  }
+
+  /* Icon Area Styling from UI Image */
+  .cmfc-icon-wrapper {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-color: #F4F7FA;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 16px;
+    flex-shrink: 0;
+    color: #1B3A6B;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  .cmfc-card:hover .cmfc-icon-wrapper {
+    background-color: rgba(204, 34, 41, 0.1);
+    color: #CC2229;
+  }
+
+  .cmfc-icon-wrapper svg {
+    width: 22px;
+    height: 22px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .cmfc-text-wrapper {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .cmfc-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #0F2347;
+    opacity: 0.6;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+
+  .cmfc-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1B3A6B;
+  }
+
+  /* Progress and Complete Button Block */
+  .cmfc-footer {
+    margin-top: 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    border-top: 1px solid rgba(15, 35, 71, 0.1);
+    padding-top: 24px;
+  }
+
+  .cmfc-progress-text {
+    font-size: 14px;
+    font-weight: 600;
+    color: #0F2347;
+  }
+
+  .interactive-element {
+    background-color: #1B3A6B;
+    color: #FFFFFF;
+    border: none;
+    padding: 14px 32px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, opacity 0.3s ease;
+    font-family: 'Urbanist', sans-serif;
+    font-weight: 600;
+    border-radius: 4px;
+    opacity: 0.6;
+    pointer-events: none;
+  }
+
+  .interactive-element.ready {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .interactive-element:hover {
+    background-color: #CC2229;
+  }
+
+  /* Mobile Responsiveness Rules */
+  @media (max-width: 768px) {
+    #custom-container-cmfc {
+      width: calc(100% - 24px);
+      margin: 12px auto;
+      padding: 24px 16px;
+    }
+    .cmfc-grid {
+      grid-template-columns: 1fr;
+    }
+    .cmfc-card {
+      height: 100px;
+    }
+  }
+</style>
+
+<div id="custom-container-cmfc">
+  <div class="cmfc-header">
+    <h2>Change Management Framework</h2>
+    <p>Select each core organizational role below to reveal their strategic focus during transformation.</p>
+  </div>
+
+  <div class="cmfc-grid">
+    <!-- Card 01 -->
+    <div class="cmfc-card" onclick="flipCard(this, 1)">
+      <div class="cmfc-card-inner">
+        <div class="cmfc-front">
+          <div class="cmfc-icon-wrapper">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          </div>
+          <div class="cmfc-text-wrapper">
+            <div class="cmfc-label">Role 01</div>
+            <div class="cmfc-title">Researchers</div>
+          </div>
+        </div>
+        <div class="cmfc-back">
+          Analyzes historical trend data, gathers workforce sentiment analytics, and measures the cultural readiness index prior to change.
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 02 -->
+    <div class="cmfc-card" onclick="flipCard(this, 2)">
+      <div class="cmfc-card-inner">
+        <div class="cmfc-front">
+          <div class="cmfc-icon-wrapper">
+            <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+          </div>
+          <div class="cmfc-text-wrapper">
+            <div class="cmfc-label">Role 02</div>
+            <div class="cmfc-title">Analysts</div>
+          </div>
+        </div>
+        <div class="cmfc-back">
+          Maps process dependencies, designs standard workflows, and metrics operational risk factors across core work streams.
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 03 -->
+    <div class="cmfc-card" onclick="flipCard(this, 3)">
+      <div class="cmfc-card-inner">
+        <div class="cmfc-front">
+          <div class="cmfc-icon-wrapper">
+            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+          </div>
+          <div class="cmfc-text-wrapper">
+            <div class="cmfc-label">Role 03</div>
+            <div class="cmfc-title">Legal Staff</div>
+          </div>
+        </div>
+        <div class="cmfc-back">
+          Evaluates compliance modifications, updates company policy structures, and protects digital data governance guidelines.
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 04 -->
+    <div class="cmfc-card" onclick="flipCard(this, 4)">
+      <div class="cmfc-card-inner">
+        <div class="cmfc-front">
+          <div class="cmfc-icon-wrapper">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+          </div>
+          <div class="cmfc-text-wrapper">
+            <div class="cmfc-label">Role 04</div>
+            <div class="cmfc-title">Finance Teams</div>
+          </div>
+        </div>
+        <div class="cmfc-back">
+          Allocates transformation funding budgets, computes ROI scenarios, and oversees functional milestone resource tracking.
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 05 -->
+    <div class="cmfc-card" onclick="flipCard(this, 5)">
+      <div class="cmfc-card-inner">
+        <div class="cmfc-front">
+          <div class="cmfc-icon-wrapper">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          </div>
+          <div class="cmfc-text-wrapper">
+            <div class="cmfc-label">Role 05</div>
+            <div class="cmfc-title">Operations</div>
+          </div>
+        </div>
+        <div class="cmfc-back">
+          Deploys systems configuration upgrades, maintains operational uptime standards, and directs execution pipelines.
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 06 -->
+    <div class="cmfc-card" onclick="flipCard(this, 6)">
+      <div class="cmfc-card-inner">
+        <div class="cmfc-front">
+          <div class="cmfc-icon-wrapper">
+            <svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+          </div>
+          <div class="cmfc-text-wrapper">
+            <div class="cmfc-label">Role 06</div>
+            <div class="cmfc-title">Exec Assistants</div>
+          </div>
+        </div>
+        <div class="cmfc-back">
+          Coordinates leadership communications, orchestrates global scheduling setups, and bridges stakeholder message distribution channels.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cmfc-footer">
+    <div class="cmfc-progress-text" id="cmfc-progress">Cards Reviewed: 0 / 6</div>
+    <button class="interactive-element" id="cmfc-submit-btn" onclick="reportCompletion()">Complete Activity</button>
+  </div>
+</div>
+
+<script>
+  const clickedCards = new Set();
+  const totalCards = 6;
+
+  function flipCard(cardElement, cardNumber) {
+    cardElement.classList.toggle('flipped');
+    
+    if (!clickedCards.has(cardNumber)) {
+      clickedCards.add(cardNumber);
+      updateProgress();
+    }
+  }
+
+  function updateProgress() {
+    const progressText = document.getElementById('cmfc-progress');
+    const submitBtn = document.getElementById('cmfc-submit-btn');
+    
+    progressText.innerText = `Cards Reviewed: ${clickedCards.size} / ${totalCards}`;
+    
+    if (clickedCards.size === totalCards) {
+      submitBtn.classList.add('ready');
+      submitBtn.innerText = "Submit Verification";
+    }
+  }
+
+  function reportCompletion() {
+    if (clickedCards.size === totalCards) {
+      window.parent.postMessage({ type: 'complete'}, '*');
+      alert("Activity completed successfully! You can now proceed.");
+    }
+  }
+</script>
