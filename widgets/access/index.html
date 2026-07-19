@@ -205,7 +205,11 @@
       setState('Welcome back, ' + email + '.',
                'You\'re enrolled in ' + moduleSlug + ' · device-bound · valid for 7 days from issue.');
       clearBanner();
-      var url = widgetUrlFor(moduleSlug);
+      var baseUrl = widgetUrlFor(moduleSlug);
+      // Cache-bust the inner iframe URL with the token so a stale CDN-cached
+      // version of the inner widget can't survive between sessions.
+      var currentToken = (typeof getToken === 'function' ? getToken() : null) || Date.now().toString(36);
+      var url = baseUrl + '?_=' + encodeURIComponent(currentToken);
       body.innerHTML =
         '<iframe class="acc01-frame" id="acc01-frame" title="eLearning content" src="' + escapeHtml(url) + '" allow="fullscreen" referrerpolicy="no-referrer"></iframe>' +
         '<p class="acc01-foot">Signed in as <strong>' + escapeHtml(email) + '</strong> on this device. Closing this tab or sharing the link won\'t unlock another device &mdash; only this browser will get through with this token.</p>';
