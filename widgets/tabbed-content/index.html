@@ -59,6 +59,23 @@
   .tc01-complete-btn:hover { background-color: #CC2229; }
   .tc01-complete-btn:focus-visible { outline: 2px solid #CC2229; outline-offset: 2px; }
   .tc01-complete-btn[disabled] { opacity: 0.45; cursor: not-allowed; }
+  .tc01-complete-btn[data-completed="true"] {
+    background-color: #1B3A6B; opacity: 1;
+    cursor: default; pointer-events: none;
+  }
+  .tc01-complete-btn[data-completed="true"]:hover { background-color: #1B3A6B; }
+  .tc01-complete-btn[data-completed="true"]::before {
+    content: "\2713"; display: inline-block;
+    margin-right: 8px; font-weight: 800;
+  }
+  .tc01-complete-banner {
+    display: none;
+    margin-top: 12px; padding: 10px 14px;
+    background: rgba(27,58,107,0.08); color: #1B3A6B;
+    border: 1px solid rgba(27,58,107,0.22); border-radius: 4px;
+    font-size: 14px; line-height: 1.4;
+  }
+  .tc01-complete-banner.is-shown { display: block; }
   @media (max-width: 768px) {
     #custom-container-tabs-01 { width: calc(100% - 24px); margin: 12px auto; padding: 24px 16px; }
     .tc01-tab-btn { padding: 10px 12px; font-size: 13px; }
@@ -136,7 +153,8 @@
   </div>
   <div class="tc01-progress" role="progressbar" aria-valuemin="0" aria-valuemax="4" aria-valuenow="0" aria-label="Sections reviewed"><div class="tc01-progress-fill" id="tc01-progress-fill"></div></div>
   <div class="tc01-progress-meta"><span><strong id="tc01-progress-current">0</strong> of <strong>4</strong> sections reviewed</span><span id="tc01-progress-status">In progress</span></div>
-  <button class="tc01-complete-btn" id="tc01-complete-btn" disabled onclick="tc01ReportCompletion()">Mark module complete</button>
+  <button class="tc01-complete-btn" id="tc01-complete-btn" disabled onclick="tc01RecordCompletion()">Mark module complete</button>
+  <div class="tc01-complete-banner" id="tc01-complete-banner" role="status" aria-live="polite"></div>
 </div>
 
 <script>
@@ -215,10 +233,30 @@
     console.error('[tc01]', err);
   }
 
-  window.tc01ReportCompletion = function(){
-    try { window.parent.postMessage({ type: 'complete' }, '*'); }
-    catch (e) { console.error('[tc01] postMessage failed', e); }
+  // Mark complete — with single-fire guard and visible ack so users
+  // see something happened even if the parent's listener is slow.
+  var banner = document.getElementById('tc01-complete-banner');
+  window.tc01RecordCompletion = function(){
+    try {
+      var b = document.getElementById('tc01-complete-btn');
+      if (!b || b.getAttribute('data-completed') === 'true') {
+        return; // already recorded — single-fire guard
+      }
+      b.setAttribute('data-completed', 'true');
+      b.disabled = true;
+      b.textContent = 'Module completed';
+      if (banner) {
+        banner.textContent = 'Completion recorded for your account. You can close this tab.';
+        banner.classList.add('is-shown');
+      }
+      window.parent.postMessage({ type: 'complete' }, '*');
+    } catch (e) {
+      console.error('[tc01] completion post failed', e);
+    }
   };
+
+  // Back-compat alias — older access/enroll widgets call this name.
+  window.tc01ReportCompletion = window.tc01RecordCompletion;
 })();
 </script>
 </body>

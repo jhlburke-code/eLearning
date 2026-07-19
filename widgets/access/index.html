@@ -212,10 +212,17 @@
     }
 
     function recordCompletion(email, module) {
-      window.addEventListener('message', function(e){
+      // Dedupe key — one row per (email, module) per session. Even if the inner
+      // widget fires multiple {type:'complete'} (double-click, race condition,
+      // sandbox quirk), we only POST once.
+      var key = email + '|' + module;
+      var alreadyDone = false;
+      var listener = function(e){
         try {
           var d = e && e.data;
           if (!d || d.type !== 'complete' || !email) return;
+          if (alreadyDone) { console.log('[acc01] dedupe skip'); return; }
+          alreadyDone = true;
           fetch(SUPABASE_URL + '/rest/v1/eLearning_completions', {
             method: 'POST',
             headers: {
@@ -227,7 +234,8 @@
             body: JSON.stringify({ email: email, module: module })
           }).catch(function(err){ console.error('[acc01] completion POST failed', err); });
         } catch (err) { console.error('[acc01] message handler', err); }
-      });
+      };
+      window.addEventListener('message', listener);
     }
 
     function init() {
