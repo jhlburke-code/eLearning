@@ -35,6 +35,7 @@
 
   .acc01-banner { padding: 12px 14px; border-radius: 4px; font-size: 14px; margin-bottom: 14px; display: none; }
   .acc01-banner.is-error { display: block; background: rgba(204,34,41,0.10); color: #CC2229; border: 1px solid rgba(204,34,41,0.32); }
+  .acc01-banner.is-warn { display: block; background: rgba(204,34,41,0.10); color: #CC2229; border: 1px solid rgba(204,34,41,0.32); }
   .acc01-banner.is-info { display: block; background: rgba(27,58,107,0.08); color: #1B3A6B; border: 1px solid rgba(27,58,107,0.22); }
 
   .acc01-loading, .acc01-error, .acc01-empty {
@@ -46,6 +47,17 @@
 
   .acc01-error-detail { font-size: 12px; color: rgba(15,35,71,0.5); margin-top: 12px; font-family: 'Menlo', 'Consolas', monospace; word-break: break-all; }
   .acc01-actions { margin-top: 14px; display: flex; gap: 10px; flex-wrap: wrap; }
+
+  .acc01-btn {
+    font-size: 13px; font-family: 'Urbanist', sans-serif; font-weight: 600;
+    padding: 10px 16px; border-radius: 4px; cursor: pointer;
+    text-decoration: none; display: inline-block;
+    transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+  }
+  .acc01-btn.is-primary { background-color: #1B3A6B; color: #FFFFFF; border: 1px solid #1B3A6B; }
+  .acc01-btn.is-primary:hover { background-color: #CC2229; border-color: #CC2229; }
+  .acc01-btn.is-secondary { background-color: transparent; color: #0F2347; border: 1px solid rgba(15,35,71,0.32); }
+  .acc01-btn.is-secondary:hover { background-color: rgba(15,35,71,0.06); border-color: #1B3A6B; }
 
   .acc01-foot { font-size: 12px; color: rgba(15,35,71,0.55); margin-top: 14px; }
 
@@ -74,6 +86,7 @@
     var SUPABASE_URL = 'https://axwipqlykysnxudnejvi.supabase.co';
     var SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF4d2lwcWx5a3lzbnh1ZG5lanZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ0ODg2NTcsImV4cCI6MjEwMDA2NDY1N30.uTgP-OfI5NtknLCw_LjvXY3tTKNfKc83DJcFRrvwgb8';
     var TAB_BASE = 'https://jhlburke-code.github.io/eLearning/widgets/';
+    var ENROLL_URL = 'https://jhlburke-code.github.io/eLearning/widgets/enroll/';
 
     var titleEl = root.querySelector('#acc01-title');
     var subEl = root.querySelector('#acc01-sub');
@@ -92,7 +105,7 @@
     }
     function setBanner(text, kind){
       banner.textContent = text;
-      banner.className = 'acc01-banner ' + (kind === 'error' ? 'is-error' : 'is-info');
+      banner.className = 'acc01-banner ' + (kind === 'error' ? 'is-error' : (kind === 'warn' ? 'is-warn' : 'is-info'));
     }
     function clearBanner(){
       banner.textContent = '';
@@ -103,19 +116,31 @@
       setBanner(msg, 'error');
       var html = '<div class="acc01-error">' + escapeHtml(msg) + '</div>';
       if (detail) html += '<div class="acc01-error-detail">' + escapeHtml(detail) + '</div>';
-      html += '<div class="acc01-actions"><a class="enr01-btn is-secondary" style="font-size:13px;font-family:Urbanist,sans-serif;font-weight:600;padding:10px 16px;border-radius:4px;text-decoration:none;background:transparent;color:#0F2347;border:1px solid rgba(15,35,71,0.32);" href="https://jhlburke-code.github.io/eLearning/widgets/enroll/" target="_top">Enroll again &rarr;</a></div>';
+      html += '<div class="acc01-actions"><a class="acc01-btn is-secondary" href="' + ENROLL_URL + '" target="_top">Enroll again &rarr;</a></div>';
       body.innerHTML = html;
     }
+    function setDeviceMismatch(email){
+      setState('Wrong device for this link', 'This access link was first used on a different device. To continue on this one, request a fresh link to this email.');
+      setBanner('Device mismatch — link is bound to a different device', 'warn');
+      body.innerHTML =
+        '<p class="acc01-error" style="background:rgba(204,34,41,0.04);color:#CC2229;border:1px solid rgba(204,34,41,0.32);padding:18px;border-radius:6px;margin:0 0 14px;">' +
+          '<strong style="display:block;font-size:14px;margin-bottom:6px;">This link was used on another device.</strong>' +
+          'The unique access link tied to <strong>' + escapeHtml(email) + '</strong> was first opened on a different device and is now device-bound to that one. Don\'t worry — this is a security feature, not a bug.' +
+        '</p>' +
+        '<p style="font-size:14px;color:rgba(15,35,71,0.78);margin:0 0 6px;"><strong>Two ways to fix this:</strong></p>' +
+        '<ol style="font-size:14px;color:rgba(15,35,71,0.78);margin:0 0 14px;padding-left:22px;">' +
+          '<li>Switch back to the original device and click the link from your email there.</li>' +
+          '<li>Re-enroll from this device — we\'ll send a fresh link tied to this browser.</li>' +
+        '</ol>' +
+        '<div class="acc01-actions"><a class="acc01-btn is-primary" href="' + ENROLL_URL + '" target="_top">Re-enroll on this device</a></div>';
+    }
 
-    // Token extraction — robust against tracking redirectors stripping the query.
     function getToken() {
-      // 1. Standard query param
       try {
         var u = new URL(window.location.href);
         var t = u.searchParams.get('token');
         if (t) return t.trim();
       } catch (_) {}
-      // 2. Hash fragment (in case tracking strips ? but leaves #token=)
       try {
         var h = window.location.hash.replace(/^#/, '');
         var parts = h.split('&');
@@ -124,11 +149,35 @@
           if (decodeURIComponent(kv[0]) === 'token' && kv[1]) return decodeURIComponent(kv[1]).trim();
         }
       } catch (_) {}
-      // 3. Heuristic — find a UUID-shaped value in any part of the URL
       var href = window.location.href;
       var m = href.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
       if (m) return m[0];
       return null;
+    }
+
+    // Lightweight, sync, fingerprint. Not crypto-strong — just stable enough
+    // to tell two devices apart. No persistence in localStorage / cookies.
+    function fingerprint() {
+      var nav = window.navigator || {};
+      var scr = window.screen || {};
+      var parts = [
+        nav.userAgent || '',
+        nav.language || '',
+        Array.isArray(nav.languages) ? nav.languages.slice(0,2).join(',') : '',
+        (scr.width||0) + 'x' + (scr.height||0) + 'x' + (scr.colorDepth||0),
+        (scr.availWidth||0) + 'x' + (scr.availHeight||0),
+        scr.pixelDepth || '',
+        new Date().getTimezoneOffset(),
+        String(nav.hardwareConcurrency || ''),
+        String(nav.maxTouchPoints || ''),
+        nav.platform || '',
+        nav.vendor || ''
+      ];
+      var s = parts.join('|');
+      // Hash to keep it short + opaque
+      var h = 5381;
+      for (var i = 0; i < s.length; i++) { h = ((h << 5) + h) ^ s.charCodeAt(i); }
+      return ('fp_' + (h >>> 0).toString(16));
     }
 
     function widgetUrlFor(moduleSlug) {
@@ -136,10 +185,7 @@
       return TAB_BASE + encodeURIComponent(key) + '/';
     }
 
-    function verifyToken(token) {
-      // Two header styles in case one is stripped:
-      // - apikey only (PostgREST anon path)
-      // - apikey + Authorization: Bearer apikey (some envs expect this)
+    function verifyToken(token, fp) {
       return fetch(SUPABASE_URL + '/rest/v1/rpc/verify_access_token', {
         method: 'POST',
         headers: {
@@ -147,7 +193,7 @@
           'Authorization': 'Bearer ' + SUPABASE_KEY,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ p_token: token })
+        body: JSON.stringify({ p_token: token, p_fingerprint: fp })
       }).then(function(r){
         return r.text().then(function(text){
           return { status: r.status, ok: r.ok, body: text };
@@ -157,12 +203,12 @@
 
     function showModule(email, moduleSlug) {
       setState('Welcome back, ' + email + '.',
-               'You\'re enrolled in ' + moduleSlug + ' · unique-link session · valid for 7 days from issue.');
+               'You\'re enrolled in ' + moduleSlug + ' · device-bound · valid for 7 days from issue.');
       clearBanner();
       var url = widgetUrlFor(moduleSlug);
       body.innerHTML =
         '<iframe class="acc01-frame" id="acc01-frame" title="eLearning content" src="' + escapeHtml(url) + '" allow="fullscreen" referrerpolicy="no-referrer"></iframe>' +
-        '<p class="acc01-foot">Signed in as <strong>' + escapeHtml(email) + '</strong>. Closing this tab or sharing the link won\'t lock others out, but the link in the email is unique to you &mdash; don\'t share it.</p>';
+        '<p class="acc01-foot">Signed in as <strong>' + escapeHtml(email) + '</strong> on this device. Closing this tab or sharing the link won\'t unlock another device &mdash; only this browser will get through with this token.</p>';
     }
 
     function recordCompletion(email, module) {
@@ -195,22 +241,31 @@
         return;
       }
 
-      verifyToken(token).then(function(r){
+      var fp = fingerprint();
+      verifyToken(token, fp).then(function(r){
         if (r.ok) {
           var rows = [];
           try { rows = JSON.parse(r.body); } catch (_) {}
           if (Array.isArray(rows) && rows.length > 0) {
-            var email = rows[0].email;
-            var module = rows[0].module;
-            showModule(email, module);
-            recordCompletion(email, module);
+            var row = rows[0];
+            var status = row.status || 'ok';
+            if (status === 'device-mismatch') {
+              setDeviceMismatch(row.email);
+              return;
+            }
+            if (status === 'ok') {
+              showModule(row.email, row.module);
+              recordCompletion(row.email, row.module);
+              return;
+            }
+            // Unknown status — fall through to error
+            setError('Unexpected verification state: ' + status, 'Token: ' + token);
             return;
           }
           setError('This link has expired or is not valid.',
                    'Token: ' + token + ' &middot; RPC status 200 with 0 rows. Re-enroll to receive a fresh link.');
           return;
         }
-        // RPC error
         if (r.status === 401 || r.status === 403) {
           setError('Could not reach the verification service.',
                    'RPC status ' + r.status + '. This is usually an ad-blocker or extension stripping the apikey header. Try a different network or incognito mode.');
