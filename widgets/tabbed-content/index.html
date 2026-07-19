@@ -1,0 +1,147 @@
+<!-- Tabbed Content: Module Outline -->
+<!-- Description: A non-linear view of a module's sections with progress tracking. Drop into Insert → Embed → iFrame in Rise, paste the hosted widget URL, set iframe height ~ 1180. -->
+<!-- Scope ID: custom-container-tabs-01 -->
+<link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* Defensive body padding prevents vertical scrollbars in standard Rise wrappers */
+  body { margin: 0; padding: 0 0 40px 0; background-color: transparent; }
+  /* Style bleed prevention */
+  #custom-container-tabs-01,
+  #custom-container-tabs-01 * { box-sizing: border-box; }
+  /* Strict width & layout */
+  #custom-container-tabs-01 {
+    font-family: 'Urbanist', sans-serif;
+    background-color: #F4F7FA;
+    max-width: 800px;
+    width: calc(100% - 32px);
+    margin: 24px auto;
+    border-radius: 8px;
+    padding: 32px;
+    color: #0F2347;
+    border: 1px solid #0F2347;
+  }
+  .tc01-eyebrow { font-size: 13px; font-weight: 600; letter-spacing: 0.25em; text-transform: uppercase; color: #CC2229; margin: 0 0 8px; }
+  .tc01-title { font-family: 'Urbanist', sans-serif; font-weight: 700; font-size: 32px; color: #1B3A6B; margin: 0 0 24px; line-height: 1.15; }
+  .tc01-tabs { display: flex; flex-wrap: wrap; gap: 4px; border-bottom: 2px solid rgba(15,35,71,0.18); margin-bottom: 24px; }
+  .tc01-tab-btn { font-family: 'Urbanist', sans-serif; background: transparent; color: #0F2347; border: none; padding: 12px 16px; font-size: 14px; font-weight: 600; cursor: pointer; border-bottom: 3px solid transparent; transition: color 0.2s ease, border-color 0.2s ease; }
+  .tc01-tab-btn:hover { color: #CC2229; }
+  .tc01-tab-btn:focus-visible { outline: 2px solid #CC2229; outline-offset: 2px; border-radius: 2px; }
+  .tc01-tab-btn[aria-selected="true"] { color: #1B3A6B; border-bottom-color: #CC2229; }
+  .tc01-panel { display: none; }
+  .tc01-panel.is-active { display: block; }
+  .tc01-panel p { font-size: 16px; line-height: 1.6; margin: 0 0 16px; color: #0F2347; }
+  .tc01-panel ul { padding-left: 20px; font-size: 16px; line-height: 1.7; color: #0F2347; }
+  .tc01-panel ul strong { color: #1B3A6B; }
+  .tc01-progress { margin-top: 24px; height: 6px; background: rgba(15,35,71,0.12); border-radius: 3px; overflow: hidden; }
+  .tc01-progress-fill { height: 100%; width: 0%; background: #CC2229; transition: width 0.3s ease; }
+  .tc01-progress-meta { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; font-size: 13px; color: rgba(15,35,71,0.78); }
+  .tc01-progress-meta strong { color: #1B3A6B; font-weight: 700; }
+  .tc01-complete-btn { background-color: #1B3A6B; color: #FFFFFF; border: none; padding: 12px 24px; font-size: 14px; cursor: pointer; transition: background-color 0.3s ease; font-family: 'Urbanist', sans-serif; font-weight: 600; border-radius: 4px; margin-top: 16px; }
+  .tc01-complete-btn:hover { background-color: #CC2229; }
+  .tc01-complete-btn:focus-visible { outline: 2px solid #CC2229; outline-offset: 2px; }
+  .tc01-complete-btn[disabled] { opacity: 0.45; cursor: not-allowed; }
+  @media (max-width: 768px) {
+    #custom-container-tabs-01 { width: calc(100% - 24px); margin: 12px auto; padding: 24px 16px; }
+    .tc01-tab-btn { padding: 10px 12px; font-size: 13px; }
+    .tc01-title { font-size: 26px; }
+  }
+</style>
+
+<div id="custom-container-tabs-01" role="region" aria-label="Module outline">
+  <p class="tc01-eyebrow">Module 01 &middot; Foundations</p>
+  <h2 class="tc01-title">Course Module Outline</h2>
+  <div class="tc01-tabs" role="tablist" aria-label="Module sections">
+    <button class="tc01-tab-btn" role="tab" aria-selected="true" id="tc01-tab-btn-1" aria-controls="tc01-panel-1" tabindex="0">Objectives</button>
+    <button class="tc01-tab-btn" role="tab" aria-selected="false" id="tc01-tab-btn-2" aria-controls="tc01-panel-2" tabindex="-1">Activities</button>
+    <button class="tc01-tab-btn" role="tab" aria-selected="false" id="tc01-tab-btn-3" aria-controls="tc01-panel-3" tabindex="-1">Deliverables</button>
+    <button class="tc01-tab-btn" role="tab" aria-selected="false" id="tc01-tab-btn-4" aria-controls="tc01-panel-4" tabindex="-1">Reflection</button>
+  </div>
+  <div class="tc01-panel is-active" role="tabpanel" id="tc01-panel-1" aria-labelledby="tc01-tab-btn-1">
+    <p>By the end of this module, learners will be able to:</p>
+    <ul>
+      <li>Identify the core principles of AI-augmented learning design.</li>
+      <li>Distinguish between generative and analytical AI use cases in L&amp;D.</li>
+      <li>Map human-in-the-loop touchpoints across a course workflow.</li>
+    </ul>
+  </div>
+  <div class="tc01-panel" role="tabpanel" id="tc01-panel-2" aria-labelledby="tc01-tab-btn-2">
+    <p>This module is structured around three short activities:</p>
+    <ul>
+      <li><strong>Concept map</strong> &mdash; pair-share the boundary between AI assistance and authorship.</li>
+      <li><strong>Prompt teardown</strong> &mdash; analyse a failed prompt against the intent-outcome gap.</li>
+      <li><strong>Workflow audit</strong> &mdash; locate one process in your team to instrument with AI.</li>
+    </ul>
+  </div>
+  <div class="tc01-panel" role="tabpanel" id="tc01-panel-3" aria-labelledby="tc01-tab-btn-3">
+    <p>Submit the following before the live session:</p>
+    <ul>
+      <li>A short reflection (200 words) on your team's prompt-to-output loop.</li>
+      <li>A screenshot of one workflow you intend to instrument with AI.</li>
+      <li>One question you'd like tackled in the live walkthrough.</li>
+    </ul>
+  </div>
+  <div class="tc01-panel" role="tabpanel" id="tc01-panel-4" aria-labelledby="tc01-tab-btn-4">
+    <p>End the module with a 60-second written answer to:</p>
+    <ul>
+      <li>What part of the workflow will remain human-driven, and why?</li>
+      <li>Where does the AI get the final say, and where do you override it?</li>
+    </ul>
+    <p>Keep your answer in your private learning journal &mdash; it will be referenced in module 02.</p>
+  </div>
+  <div class="tc01-progress" role="progressbar" aria-valuemin="0" aria-valuemax="4" aria-valuenow="0" aria-label="Sections reviewed"><div class="tc01-progress-fill" id="tc01-progress-fill"></div></div>
+  <div class="tc01-progress-meta"><span><strong id="tc01-progress-current">0</strong> of <strong>4</strong> sections reviewed</span><span id="tc01-progress-status">In progress</span></div>
+  <button class="tc01-complete-btn" id="tc01-complete-btn" disabled onclick="tc01ReportCompletion()">Mark module complete</button>
+</div>
+
+<script>
+(function(){
+  var root = document.getElementById('custom-container-tabs-01');
+  var btns = root.querySelectorAll('.tc01-tab-btn');
+  var panels = root.querySelectorAll('.tc01-panel');
+  var fill = root.getElementById('tc01-progress-fill');
+  var cur = root.getElementById('tc01-progress-current');
+  var stat = root.getElementById('tc01-progress-status');
+  var btn = root.getElementById('tc01-complete-btn');
+  var bar = root.querySelector('[role="progressbar"]');
+  var total = btns.length;
+  var reviewed = new Set();
+  function activate(i){
+    btns.forEach(function(b, idx){
+      var on = idx === i;
+      b.setAttribute('aria-selected', on ? 'true' : 'false');
+      b.setAttribute('tabindex', on ? '0' : '-1');
+    });
+    panels.forEach(function(p, idx){
+      var on = idx === i;
+      p.classList.toggle('is-active', on);
+    });
+    if (!reviewed.has(i)) {
+      reviewed.add(i);
+      var n = reviewed.size;
+      fill.style.width = ((n / total) * 100) + '%';
+      cur.textContent = n;
+      if (bar) bar.setAttribute('aria-valuenow', String(n));
+      if (n >= total) {
+        stat.textContent = 'Ready';
+        btn.disabled = false;
+      }
+    }
+    btns[i].focus();
+  }
+  btns.forEach(function(b, idx){
+    b.addEventListener('click', function(){ activate(idx); });
+  });
+  root.querySelector('.tc01-tabs').addEventListener('keydown', function(e){
+    var idx = Array.prototype.indexOf.call(btns, document.activeElement);
+    if (idx < 0) return;
+    if (e.key === 'ArrowRight') { e.preventDefault(); var n = (idx + 1) % btns.length; activate(n); }
+    if (e.key === 'ArrowLeft')  { e.preventDefault(); var p = (idx - 1 + btns.length) % btns.length; activate(p); }
+    if (e.key === 'Home')       { e.preventDefault(); activate(0); }
+    if (e.key === 'End')        { e.preventDefault(); activate(btns.length - 1); }
+  });
+  activate(0);
+})();
+function tc01ReportCompletion() {
+  window.parent.postMessage({ type: 'complete' }, '*');
+}
+</script>
