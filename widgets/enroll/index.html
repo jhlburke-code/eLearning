@@ -6,12 +6,9 @@
 <title>eLearning &middot; Enroll</title>
 <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 <style>
-  /* Defensive body padding prevents vertical scrollbars in standard Rise wrappers */
   body { margin: 0; padding: 0 0 40px 0; background-color: transparent; }
-  /* Style bleed prevention */
   #custom-container-enroll-01,
   #custom-container-enroll-01 * { box-sizing: border-box; }
-  /* Strict width & layout */
   #custom-container-enroll-01 {
     font-family: 'Urbanist', sans-serif;
     background-color: #F4F7FA;
@@ -57,24 +54,42 @@
 
   .enr01-honeypot { position: absolute !important; left: -10000px !important; opacity: 0 !important; pointer-events: none !important; }
 
-  /* Success state */
-  .enr01-success { display: none; }
-  .enr01-success.is-active { display: block; }
-  .enr01-success-title { font-family: 'Urbanist', sans-serif; font-weight: 700; font-size: 22px; color: #1B3A6B; margin: 0 0 6px; }
-  .enr01-success-sub { font-size: 14px; color: rgba(15,35,71,0.78); margin: 0 0 16px; }
-  .enr01-success-frame {
-    display: block; width: 100%; height: 1240px; border: 1px solid rgba(15,35,71,0.32);
-    border-radius: 6px; background: #FFFFFF;
+  /* Phase C: Check your inbox */
+  .enr01-sent { display: none; }
+  .enr01-sent.is-active { display: block; }
+  .enr01-sent-card {
+    background: #FFFFFF; border: 1px solid rgba(15,35,71,0.18); border-radius: 8px;
+    padding: 24px; margin: 0 0 18px;
   }
-  .enr01-success-foot { font-size: 13px; color: rgba(15,35,71,0.60); margin-top: 12px; display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
-  .enr01-reenroll { font-size: 13px; background: transparent; border: 1px solid rgba(15,35,71,0.32); color: #0F2347; padding: 8px 14px; border-radius: 4px; cursor: pointer; font-family: 'Urbanist', sans-serif; font-weight: 600; }
-  .enr01-reenroll:hover { background: rgba(15,35,71,0.06); border-color: #1B3A6B; }
-  .enr01-reenroll:focus-visible { outline: 2px solid #CC2229; outline-offset: 2px; }
+  .enr01-sent-check {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 44px; height: 44px; border-radius: 999px;
+    background: rgba(27,58,107,0.10); color: #1B3A6B; font-size: 22px;
+    margin-bottom: 12px;
+  }
+  .enr01-sent-title { font-family: 'Urbanist', sans-serif; font-weight: 700; font-size: 22px; color: #1B3A6B; margin: 0 0 8px; }
+  .enr01-sent-line { font-size: 15px; color: rgba(15,35,71,0.78); margin: 0 0 6px; line-height: 1.5; }
+  .enr01-sent-line code { background: rgba(27,58,107,0.08); padding: 2px 6px; border-radius: 3px; color: #1B3A6B; font-size: 13px; }
+  .enr01-sent-foot { font-size: 13px; color: rgba(15,35,71,0.55); margin-top: 14px; line-height: 1.5; }
+  .enr01-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
+  .enr01-btn {
+    font-size: 13px; font-family: 'Urbanist', sans-serif; font-weight: 600;
+    padding: 10px 16px; border-radius: 4px; cursor: pointer;
+    transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+  }
+  .enr01-btn.is-primary { background-color: #1B3A6B; color: #FFFFFF; border: 1px solid #1B3A6B; }
+  .enr01-btn.is-primary:hover { background-color: #CC2229; border-color: #CC2229; }
+  .enr01-btn.is-secondary { background-color: transparent; color: #0F2347; border: 1px solid rgba(15,35,71,0.32); }
+  .enr01-btn.is-secondary:hover { background-color: rgba(15,35,71,0.06); border-color: #1B3A6B; }
+  .enr01-btn:focus-visible { outline: 2px solid #CC2229; outline-offset: 2px; }
+
+  .enr01-spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid currentColor; border-top-color: transparent; border-radius: 999px; animation: enr01spin 0.7s linear infinite; margin-right: 8px; vertical-align: -2px; }
+  @keyframes enr01spin { to { transform: rotate(360deg); } }
 
   @media (max-width: 768px) {
     #custom-container-enroll-01 { width: calc(100% - 24px); margin: 12px auto; padding: 24px 16px; }
     .enr01-title { font-size: 22px; }
-    .enr01-success-frame { height: 1400px; }
+    .enr01-sent-title { font-size: 18px; }
   }
 </style>
 </head>
@@ -84,7 +99,7 @@
   <div id="enr01-form-phase">
     <p class="enr01-eyebrow">Module 01 &middot; Foundations</p>
     <h2 class="enr01-title">Course Enrollment</h2>
-    <p class="enr01-sub">Drop your details &mdash; the eLearning unlocks right here. One record per email.</p>
+    <p class="enr01-sub">Drop your details &mdash; we&rsquo;ll email you a unique link to start the module. One record per email.</p>
 
     <div class="enr01-banner" id="enr01-banner" role="alert" aria-live="assertive"></div>
 
@@ -104,21 +119,30 @@
         <label for="enr01-website">Website</label>
         <input id="enr01-website" name="website" type="text" tabindex="-1" autocomplete="off" />
       </div>
-      <button class="enr01-submit" id="enr01-submit" type="submit">Enroll &amp; open module</button>
+      <button class="enr01-submit" id="enr01-submit" type="submit">Enroll &amp; email me the link</button>
     </form>
   </div>
 
-  <!-- Phase B: Success -->
-  <div class="enr01-success" id="enr01-success-phase" aria-live="polite">
+  <!-- Phase C: Check your inbox -->
+  <div class="enr01-sent" id="enr01-sent-phase" aria-live="polite">
     <p class="enr01-eyebrow">You're enrolled</p>
-    <h2 class="enr01-success-title">Welcome, <span id="enr01-success-name">learner</span>.</h2>
-    <p class="enr01-success-sub">Module 01 is unlocked below. Your record is saved.</p>
-    <iframe class="enr01-success-frame" id="enr01-frame" title="Module 01 eLearning widget"
-      src="about:blank" allow="fullscreen" referrerpolicy="no-referrer"></iframe>
-    <p class="enr01-success-foot">
-      <span>Stuck loading? <a href="https://jhlburke-code.github.io/eLearning/widgets/tabbed-content/" target="_blank" rel="noopener noreferrer">Open the module in a new tab &rarr;</a></span>
-      <button class="enr01-reenroll" id="enr01-reenroll" type="button">Re-enroll with a different email</button>
-    </p>
+    <h2 class="enr01-title">Check your inbox</h2>
+    <p class="enr01-sub">We just emailed you a unique access link. Click it to start the module.</p>
+
+    <div class="enr01-sent-card">
+      <div class="enr01-sent-check" aria-hidden="true">&#9993;&#65039;</div>
+      <h3 class="enr01-sent-title">We sent it to <span id="enr01-sent-email">you</span></h3>
+      <p class="enr01-sent-line">Look for an email from <strong>Exploring AI in OD</strong> with the subject <code>Your AIINOD eLearning link</code>.</p>
+      <p class="enr01-sent-line">The link is valid for <strong>7 days</strong>. It&rsquo;s tied to <code id="enr01-sent-email-2">your email</code> &mdash; don&rsquo;t share it.</p>
+      <p class="enr01-sent-foot">Didn&rsquo;t arrive? Check spam, then try resending. Still nothing after 5 minutes? Try a different address.</p>
+    </div>
+
+    <div class="enr01-actions">
+      <button class="enr01-btn is-primary" id="enr01-resend" type="button">Resend the link</button>
+      <button class="enr01-btn is-secondary" id="enr01-reenroll" type="button">Use a different email</button>
+    </div>
+
+    <div class="enr01-banner" id="enr01-sent-banner" role="alert" aria-live="polite" style="margin-top:14px;"></div>
   </div>
 </div>
 
@@ -131,25 +155,26 @@
     var SUPABASE_URL = 'https://axwipqlykysnxudnejvi.supabase.co';
     var SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF4d2lwcWx5a3lzbnh1ZG5lanZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ0ODg2NTcsImV4cCI6MjEwMDA2NDY1N30.uTgP-OfI5NtknLCw_LjvXY3tTKNfKc83DJcFRrvwgb8';
     var MODULE_SLUG = 'tabbed-content/v2';
-    var TABBED_WIDGET = 'https://jhlburke-code.github.io/eLearning/widgets/tabbed-content/';
-    var COMPLETIONS_TABLE = 'eLearning_completions';
-
-    // Set after a successful enrollment. Used as the identifier when the inner iframe
-    // fires { type: 'complete' } postMessage on module completion.
-    var currentEmail = null;
+    var SEND_LINK_URL = 'https://axwipqlykysnxudnejvi.supabase.co/functions/v1/enroll_send_link';
 
     var form = root.querySelector('#enr01-form');
     var submit = root.querySelector('#enr01-submit');
     var banner = root.querySelector('#enr01-banner');
     var phaseA = root.querySelector('#enr01-form-phase');
-    var phaseB = root.querySelector('#enr01-success-phase');
+    var phaseC = root.querySelector('#enr01-sent-phase');
     var nameInput = root.querySelector('#enr01-name');
     var emailInput = root.querySelector('#enr01-email');
     var errName = root.querySelector('#enr01-err-name');
     var errEmail = root.querySelector('#enr01-err-email');
-    var frame = root.querySelector('#enr01-frame');
-    var successName = root.querySelector('#enr01-success-name');
-    var reenroll = root.querySelector('#enr01-reenroll');
+    var sentEmail = root.querySelector('#enr01-sent-email');
+    var sentEmail2 = root.querySelector('#enr01-sent-email-2');
+    var resendBtn = root.querySelector('#enr01-resend');
+    var reenrollBtn = root.querySelector('#enr01-reenroll');
+    var sentBanner = root.querySelector('#enr01-sent-banner');
+
+    // Captured at successful submit; reused by resend.
+    var lastName = '';
+    var lastEmail = '';
 
     var EMAIL_RE = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
 
@@ -161,6 +186,14 @@
       banner.textContent = '';
       banner.className = 'enr01-banner';
     }
+    function setSentBanner(text, kind){
+      sentBanner.textContent = text;
+      sentBanner.className = 'enr01-banner ' + (kind === 'error' ? 'is-error' : 'is-info');
+    }
+    function clearSentBanner(){
+      sentBanner.textContent = '';
+      sentBanner.className = 'enr01-banner';
+    }
     function setError(el, msg){
       el.textContent = msg || '';
       var input = el.previousElementSibling;
@@ -170,21 +203,23 @@
       }
     }
 
-    function showSuccess(name, email){
+    function showInbox(name, email){
       phaseA.style.display = 'none';
-      phaseB.classList.add('is-active');
-      successName.textContent = name;
-      frame.src = TABBED_WIDGET;
+      phaseC.classList.add('is-active');
+      sentEmail.textContent = email;
+      sentEmail2.textContent = email;
+      // If you happen to be embedded in a Rise/Notion container, propagate completion.
       try { window.enr01ReportCompletion(); } catch (e) {}
-      currentEmail = email;
+    }
+    function showFormAgain(){
+      phaseC.classList.remove('is-active');
+      phaseA.style.display = '';
+      clearSentBanner();
+      nameInput.focus();
     }
 
     function postToSupabase(payload){
-      // Plain INSERT only — do NOT send `resolution=merge-duplicates`.
-      // PostgREST interprets that header as "ON CONFLICT DO UPDATE" (UPSERT), which requires
-      // SELECT on the table. Anon role has no SELECT policy, so the upsert path hits RLS.
-      // Plain INSERT is fine: email has a UNIQUE constraint, so a re-enrolled address gets 409.
-      // We treat 409 as "already enrolled" and reveal the widget anyway.
+      // Plain INSERT only — see skills/rise-widget-builder "Lesson: Supabase anon + upsert" for why.
       return fetch(SUPABASE_URL + '/rest/v1/' + encodeURIComponent('eLearning_test_database'), {
         method: 'POST',
         headers: {
@@ -193,6 +228,20 @@
           'Prefer': 'return=minimal'
         },
         body: JSON.stringify(payload)
+      });
+    }
+
+    function callSendLink(name, email){
+      // Calls the Supabase Edge Function. It mints a per-enrollment access token,
+      // stores it server-side, and emails a unique link to the user.
+      return fetch(SEND_LINK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email, full_name: name, module: MODULE_SLUG })
+      }).then(function(res){
+        return res.text().then(function(text){
+          return { status: res.status, ok: res.ok, text: text };
+        });
       });
     }
 
@@ -214,8 +263,8 @@
       clearBanner();
       var honeypot = root.querySelector('#enr01-website');
       if (honeypot && honeypot.value) {
-        // Bot detected — pretend to succeed silently without contacting Supabase.
-        showSuccess('friend', null);
+        // Bot detected — pretend to succeed silently without contacting anything.
+        showInbox('friend', 'your inbox');
         return;
       }
       var name = (nameInput.value || '').trim();
@@ -224,90 +273,64 @@
 
       submit.disabled = true;
       var prevLabel = submit.textContent;
-      submit.textContent = 'Enrolling...';
+      submit.innerHTML = '<span class="enr01-spinner"></span>Enrolling…';
 
-      postToSupabase({
-        full_name: name,
-        email: email,
-        module: MODULE_SLUG
-      })
-      .then(function(res){
-        submit.disabled = false;
-        submit.textContent = prevLabel;
-        // 201: fresh enrollment.  409: already enrolled (UNIQUE on email). Both → success.
-        if (res.ok || res.status === 409) {
-          showSuccess(name, email);
-          return;
-        }
-        return res.text().then(function(t){
-          throw new Error('Server returned ' + res.status + (t ? ': ' + t.slice(0, 200) : ''));
+      postToSupabase({ full_name: name, email: email, module: MODULE_SLUG })
+        .then(function(res){
+          // 201: fresh. 409: already enrolled. Both → reveal inbox UI.
+          if (res.ok || res.status === 409) {
+            lastName = name; lastEmail = email;
+            // Email a unique link via Edge Function.
+            return callSendLink(name, email).then(function(r2){
+              submit.disabled = false;
+              submit.innerHTML = prevLabel;
+              if (r2.ok) {
+                showInbox(name, email);
+                return;
+              }
+              throw new Error('send_link HTTP ' + r2.status + (r2.text ? ': ' + r2.text.slice(0,200) : ''));
+            });
+          }
+          submit.disabled = false;
+          submit.innerHTML = prevLabel;
+          return res.text().then(function(t){
+            throw new Error('Server returned ' + res.status + (t ? ': ' + t.slice(0, 200) : ''));
+          });
+        })
+        .catch(function(err){
+          submit.disabled = false;
+          submit.innerHTML = prevLabel;
+          setBanner('Could not enroll right now. ' + (err && err.message ? err.message : 'Please try again.'), 'error');
         });
-      })
-      .catch(function(err){
-        submit.disabled = false;
-        submit.textContent = prevLabel;
-        setBanner('Could not enroll right now. ' + (err && err.message ? err.message : 'Please try again.'), 'error');
+    }
+
+    function handleResend(){
+      if (!lastEmail || !lastName) { showFormAgain(); return; }
+      clearSentBanner();
+      resendBtn.disabled = true;
+      var prev = resendBtn.textContent;
+      resendBtn.innerHTML = '<span class="enr01-spinner"></span>Sending…';
+      callSendLink(lastName, lastEmail).then(function(r){
+        resendBtn.disabled = false;
+        resendBtn.innerHTML = prev;
+        if (r.ok) {
+          setSentBanner('Sent. Check your inbox again — it should arrive in seconds.', 'info');
+        } else {
+          setSentBanner('Could not resend. ' + (r.text ? r.text.slice(0, 200) : 'Try again in a moment.'), 'error');
+        }
+      }).catch(function(err){
+        resendBtn.disabled = false;
+        resendBtn.innerHTML = prev;
+        setSentBanner('Network error. Try again in a moment.', 'error');
       });
     }
 
     form.addEventListener('submit', handleSubmit);
-    if (reenroll) {
-      reenroll.addEventListener('click', function(){
-        phaseB.classList.remove('is-active');
-        phaseA.style.display = '';
-        nameInput.value = '';
-        emailInput.value = '';
-        frame.src = 'about:blank';
-        currentEmail = null;
-        nameInput.focus();
-      });
-    }
-
-    // Listen for completion signals from the inner tabbed-content iframe.
-    // The inner widget fires {type:'complete'} when the user clicks "Mark module complete".
-    // We forward it as a new row in `eLearning_completions` for the report widget to aggregate.
-    window.addEventListener('message', function(e){
-      try {
-        var d = e && e.data;
-        if (!d || d.type !== 'complete' || !currentEmail) return;
-        fetch(SUPABASE_URL + '/rest/v1/' + encodeURIComponent(COMPLETIONS_TABLE), {
-          method: 'POST',
-          headers: {
-            'apikey': SUPABASE_KEY,
-            'Content-Type': 'application/json',
-            'Prefer': 'return=minimal'
-          },
-          body: JSON.stringify({ email: currentEmail, module: MODULE_SLUG })
-        }).then(function(r){
-          if (r.ok) console.log('[enr01] completion recorded for', currentEmail);
-          else console.warn('[enr01] completion POST status', r.status);
-        }).catch(function(err){
-          console.error('[enr01] completion POST failed', err);
-        });
-      } catch (err) {
-        console.error('[enr01] message handler', err);
-      }
-    });
-
-    // Event delegation: any descendant click on submit button
-    root.addEventListener('click', function(e){
-      var t = e.target;
-      while (t && t !== root) {
-        if (t.id === 'enr01-submit' && t.tagName === 'BUTTON') {
-          // Native form submit handler covers this; delegated handler for completeness
-          break;
-        }
-        t = t.parentNode;
-      }
-    });
+    if (resendBtn) resendBtn.addEventListener('click', handleResend);
+    if (reenrollBtn) reenrollBtn.addEventListener('click', showFormAgain);
   } catch (err) {
     console.error('[enr01]', err);
   }
-
-  window.enr01ReportCompletion = function(){
-    try { window.parent.postMessage({ type: 'complete' }, '*'); }
-    catch (e) { console.error('[enr01] postMessage failed', e); }
-  };
 })();
 </script>
 </body>

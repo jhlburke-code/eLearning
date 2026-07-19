@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>eLearning &middot; Access</title>
+<link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; padding: 0 0 40px 0; background-color: transparent; }
+  #custom-container-access-01,
+  #custom-container-access-01 * { box-sizing: border-box; }
+  #custom-container-access-01 {
+    font-family: 'Urbanist', sans-serif;
+    background-color: #F4F7FA;
+    max-width: 880px;
+    width: calc(100% - 32px);
+    margin: 24px auto;
+    border-radius: 8px;
+    padding: 28px 32px;
+    color: #0F2347;
+    border: 1px solid #0F2347;
+  }
+  .acc01-eyebrow { font-size: 13px; font-weight: 600; letter-spacing: 0.25em; text-transform: uppercase; color: #CC2229; margin: 0 0 8px; }
+  .acc01-title { font-family: 'Urbanist', sans-serif; font-weight: 700; font-size: 26px; color: #1B3A6B; margin: 0 0 6px; line-height: 1.2; }
+  .acc01-sub { font-size: 14px; color: rgba(15,35,71,0.78); margin: 0 0 18px; }
+  .acc01-sub strong { color: #1B3A6B; font-weight: 700; }
+
+  .acc01-frame {
+    display: block; width: 100%; height: 1240px; border: 1px solid rgba(15,35,71,0.32);
+    border-radius: 6px; background: #FFFFFF;
+  }
+
+  .acc01-banner { padding: 12px 14px; border-radius: 4px; font-size: 14px; margin-bottom: 14px; display: none; }
+  .acc01-banner.is-error { display: block; background: rgba(204,34,41,0.10); color: #CC2229; border: 1px solid rgba(204,34,41,0.32); }
+
+  .acc01-loading, .acc01-error, .acc01-empty {
+    padding: 36px 16px; text-align: center; border-radius: 6px;
+    background: #FFFFFF; color: rgba(15,35,71,0.62); font-size: 14px;
+    border: 1px dashed rgba(15,35,71,0.22);
+  }
+  .acc01-error { border-color: #CC2229; color: #CC2229; background: rgba(204,34,41,0.04); }
+
+  .acc01-foot { font-size: 12px; color: rgba(15,35,71,0.55); margin-top: 14px; }
+
+  @media (max-width: 768px) {
+    #custom-container-access-01 { width: calc(100% - 24px); padding: 22px 16px; }
+    .acc01-title { font-size: 20px; }
+    .acc01-frame { height: 1400px; }
+  }
+</style>
+</head>
+<body>
+<div id="custom-container-access-01" role="region" aria-label="eLearning access">
+  <p class="acc01-eyebrow">eLearning Access</p>
+  <h2 class="acc01-title" id="acc01-title">Verifying your link…</h2>
+  <p class="acc01-sub" id="acc01-sub">One moment.</p>
+  <div id="acc01-banner" class="acc01-banner" role="alert"></div>
+  <div id="acc01-body"></div>
+</div>
+
+<script>
+(function(){
+  try {
+    var root = document.getElementById('custom-container-access-01');
+    if (!root) { console.error('[acc01] container missing'); return; }
+
+    var SUPABASE_URL = 'https://axwipqlykysnxudnejvi.supabase.co';
+    var SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF4d2lwcWx5a3lzbnh1ZG5lanZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ0ODg2NTcsImV4cCI6MjEwMDA2NDY1N30.uTgP-OfI5NtknLCw_LjvXY3tTKNfKc83DJcFRrvwgb8';
+    var TAB_BASE = 'https://jhlburke-code.github.io/eLearning/widgets/';
+
+    var titleEl = root.querySelector('#acc01-title');
+    var subEl = root.querySelector('#acc01-sub');
+    var banner = root.querySelector('#acc01-banner');
+    var body = root.querySelector('#acc01-body');
+
+    function escapeHtml(s){
+      return String(s == null ? '' : s)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    function setLoading(){
+      titleEl.textContent = 'Verifying your link…';
+      subEl.innerHTML = 'One moment.';
+      body.innerHTML = '<div class="acc01-loading">Checking your access token…</div>';
+    }
+    function setError(msg){
+      titleEl.textContent = 'Access link not valid';
+      banner.textContent = msg;
+      banner.className = 'acc01-banner is-error';
+      body.innerHTML = '<div class="acc01-error">' + escapeHtml(msg) + '</div>';
+    }
+
+    function getToken() {
+      var u = new URL(window.location.href);
+      return u.searchParams.get('token');
+    }
+
+    function widgetUrlFor(moduleSlug) {
+      // Map our stored module slug (e.g. "tabbed-content/v2") to a widget URL.
+      // v1 supports only tabbed-content; future modules would map here too.
+      var key = (moduleSlug || '').split('/')[0];
+      return TAB_BASE + encodeURIComponent(key) + '/';
+    }
+
+    function verifyToken(token) {
+      return fetch(SUPABASE_URL + '/rest/v1/rpc/verify_access_token', {
+        method: 'POST',
+        headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ p_token: token })
+      }).then(function(r){
+        if (!r.ok) throw new Error('verify_access_token HTTP ' + r.status);
+        return r.json();
+      });
+    }
+
+    function showModule(email, moduleSlug) {
+      titleEl.textContent = 'Welcome back, ' + email + '.';
+      subEl.innerHTML = 'You\'re enrolled in <strong>' + escapeHtml(moduleSlug) + '</strong> · unique-link session · valid for 7 days from issue.';
+      // Hide banner if it was an error (it shouldn't be on success)
+      banner.className = 'acc01-banner';
+      banner.textContent = '';
+      var url = widgetUrlFor(moduleSlug);
+      body.innerHTML =
+        '<iframe class="acc01-frame" id="acc01-frame" title="eLearning content" src="' + escapeHtml(url) + '" allow="fullscreen" referrerpolicy="no-referrer"></iframe>' +
+        '<p class="acc01-foot">Signed in as <strong>' + escapeHtml(email) + '</strong>. Closing this tab or sharing the link won\'t lock others out, but the link in the email is unique to you &mdash; don\'t share it.</p>';
+    }
+
+    function recordCompletion(email, module) {
+      // Forward inner tabbed-content's {type:'complete'} postMessage to the completions table.
+      // (This mirrors what the enroll widget does — the access widget is the new home for that hop.)
+      window.addEventListener('message', function(e){
+        try {
+          var d = e && e.data;
+          if (!d || d.type !== 'complete' || !email) return;
+          fetch(SUPABASE_URL + '/rest/v1/eLearning_completions', {
+            method: 'POST',
+            headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+            body: JSON.stringify({ email: email, module: module })
+          }).then(function(r){
+            if (r.ok) console.log('[acc01] completion recorded for', email);
+            else console.warn('[acc01] completion POST status', r.status);
+          }).catch(function(err){ console.error('[acc01] completion POST failed', err); });
+        } catch (err) { console.error('[acc01] message handler', err); }
+      });
+    }
+
+    function init() {
+      setLoading();
+      var token = getToken();
+      if (!token) {
+        setError('No access token in URL. Use the link from your enrollment email.');
+        return;
+      }
+      verifyToken(token)
+        .then(function(rows){
+          if (!Array.isArray(rows) || rows.length === 0) {
+            setError('This link has expired or is not valid. Enroll again to receive a new access link.');
+            return;
+          }
+          var email = rows[0].email;
+          var module = rows[0].module;
+          showModule(email, module);
+          recordCompletion(email, module);
+        })
+        .catch(function(err){
+          setError((err && err.message) || 'Could not verify your access link.');
+        });
+    }
+
+    init();
+  } catch (err) {
+    console.error('[acc01]', err);
+  }
+})();
+</script>
+</body>
+</html>
