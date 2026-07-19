@@ -174,16 +174,17 @@
     }
 
     function postToSupabase(payload){
-      // For anon public inserts, send ONLY the `apikey` header.
-      // PostgREST treats a missing Authorization header as "use the apikey to pick a role";
-      // a present but apikey-identical Authorization sometimes falls into a different code
-      // path that hits RLS even when the apikey alone would not. The apikey alone is enough.
+      // Plain INSERT only — do NOT send `resolution=merge-duplicates`.
+      // PostgREST interprets that header as "ON CONFLICT DO UPDATE" (UPSERT), which requires
+      // SELECT on the table. Anon role has no SELECT policy, so the upsert path hits RLS.
+      // Plain INSERT is fine: email has a UNIQUE constraint, so a re-enrolled address gets 409.
+      // We treat 409 as "already enrolled" and reveal the widget anyway.
       return fetch(SUPABASE_URL + '/rest/v1/' + encodeURIComponent('eLearning_test_database'), {
         method: 'POST',
         headers: {
           'apikey': SUPABASE_KEY,
           'Content-Type': 'application/json',
-          'Prefer': 'return=minimal,resolution=merge-duplicates'
+          'Prefer': 'return=minimal'
         },
         body: JSON.stringify(payload)
       });
@@ -226,7 +227,8 @@
       .then(function(res){
         submit.disabled = false;
         submit.textContent = prevLabel;
-        if (res.ok) {
+        // 201: fresh enrollment.  409: already enrolled (UNIQUE on email). Both → success.
+        if (res.ok || res.status === 409) {
           showSuccess(name);
           return;
         }
