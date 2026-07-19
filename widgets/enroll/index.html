@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>eLearning &middot; Enroll</title>
+<link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* Defensive body padding prevents vertical scrollbars in standard Rise wrappers */
+  body { margin: 0; padding: 0 0 40px 0; background-color: transparent; }
+  /* Style bleed prevention */
+  #custom-container-enroll-01,
+  #custom-container-enroll-01 * { box-sizing: border-box; }
+  /* Strict width & layout */
+  #custom-container-enroll-01 {
+    font-family: 'Urbanist', sans-serif;
+    background-color: #F4F7FA;
+    max-width: 800px;
+    width: calc(100% - 32px);
+    margin: 24px auto;
+    border-radius: 8px;
+    padding: 32px;
+    color: #0F2347;
+    border: 1px solid #0F2347;
+  }
+  .enr01-eyebrow { font-size: 13px; font-weight: 600; letter-spacing: 0.25em; text-transform: uppercase; color: #CC2229; margin: 0 0 8px; }
+  .enr01-title { font-family: 'Urbanist', sans-serif; font-weight: 700; font-size: 28px; color: #1B3A6B; margin: 0 0 8px; line-height: 1.2; }
+  .enr01-sub { font-size: 15px; color: rgba(15,35,71,0.78); margin: 0 0 20px; }
+
+  .enr01-banner { padding: 10px 12px; border-radius: 4px; font-size: 14px; margin-bottom: 16px; display: none; }
+  .enr01-banner.is-error { display: block; background: rgba(204,34,41,0.10); color: #CC2229; border: 1px solid rgba(204,34,41,0.32); }
+  .enr01-banner.is-info { display: block; background: rgba(27,58,107,0.08); color: #1B3A6B; border: 1px solid rgba(27,58,107,0.22); }
+
+  .enr01-field { margin-bottom: 14px; }
+  .enr01-label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: #0F2347; }
+  .enr01-label .req { color: #CC2229; }
+  .enr01-input {
+    display: block; width: 100%;
+    font-family: inherit; font-size: 15px;
+    padding: 10px 12px; border: 1px solid rgba(15,35,71,0.32);
+    background: #FFFFFF; color: #0F2347; border-radius: 4px;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease;
+  }
+  .enr01-input:focus { outline: none; border-color: #1B3A6B; box-shadow: 0 0 0 3px rgba(27,58,107,0.18); }
+  .enr01-input.is-invalid { border-color: #CC2229; }
+  .enr01-err { font-size: 13px; color: #CC2229; margin: 6px 0 0; min-height: 18px; }
+
+  .enr01-submit {
+    background-color: #1B3A6B; color: #FFFFFF; border: none;
+    padding: 12px 24px; font-size: 14px; font-family: 'Urbanist', sans-serif;
+    font-weight: 600; border-radius: 4px; cursor: pointer;
+    transition: background-color 0.2s ease; margin-top: 8px;
+  }
+  .enr01-submit:hover { background-color: #CC2229; }
+  .enr01-submit:focus-visible { outline: 2px solid #CC2229; outline-offset: 2px; }
+  .enr01-submit[disabled] { opacity: 0.55; cursor: not-allowed; }
+
+  .enr01-honeypot { position: absolute !important; left: -10000px !important; opacity: 0 !important; pointer-events: none !important; }
+
+  /* Success state */
+  .enr01-success { display: none; }
+  .enr01-success.is-active { display: block; }
+  .enr01-success-title { font-family: 'Urbanist', sans-serif; font-weight: 700; font-size: 22px; color: #1B3A6B; margin: 0 0 6px; }
+  .enr01-success-sub { font-size: 14px; color: rgba(15,35,71,0.78); margin: 0 0 16px; }
+  .enr01-success-frame {
+    display: block; width: 100%; height: 1240px; border: 1px solid rgba(15,35,71,0.32);
+    border-radius: 6px; background: #FFFFFF;
+  }
+  .enr01-success-foot { font-size: 13px; color: rgba(15,35,71,0.60); margin-top: 12px; display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+  .enr01-reenroll { font-size: 13px; background: transparent; border: 1px solid rgba(15,35,71,0.32); color: #0F2347; padding: 8px 14px; border-radius: 4px; cursor: pointer; font-family: 'Urbanist', sans-serif; font-weight: 600; }
+  .enr01-reenroll:hover { background: rgba(15,35,71,0.06); border-color: #1B3A6B; }
+  .enr01-reenroll:focus-visible { outline: 2px solid #CC2229; outline-offset: 2px; }
+
+  @media (max-width: 768px) {
+    #custom-container-enroll-01 { width: calc(100% - 24px); margin: 12px auto; padding: 24px 16px; }
+    .enr01-title { font-size: 22px; }
+    .enr01-success-frame { height: 1400px; }
+  }
+</style>
+</head>
+<body>
+<div id="custom-container-enroll-01" role="region" aria-label="eLearning enrollment">
+  <!-- Phase A: Form -->
+  <div id="enr01-form-phase">
+    <p class="enr01-eyebrow">Module 01 &middot; Foundations</p>
+    <h2 class="enr01-title">Course Enrollment</h2>
+    <p class="enr01-sub">Drop your details &mdash; the eLearning unlocks right here. One record per email.</p>
+
+    <div class="enr01-banner" id="enr01-banner" role="alert" aria-live="assertive"></div>
+
+    <form id="enr01-form" novalidate>
+      <div class="enr01-field">
+        <label class="enr01-label" for="enr01-name">Full name <span class="req">*</span></label>
+        <input class="enr01-input" id="enr01-name" name="full_name" type="text" autocomplete="name" required minlength="2" maxlength="200" />
+        <p class="enr01-err" id="enr01-err-name" aria-live="polite"></p>
+      </div>
+      <div class="enr01-field">
+        <label class="enr01-label" for="enr01-email">Email <span class="req">*</span></label>
+        <input class="enr01-input" id="enr01-email" name="email" type="email" autocomplete="email" required />
+        <p class="enr01-err" id="enr01-err-email" aria-live="polite"></p>
+      </div>
+      <!-- Honeypot: visible only to bots -->
+      <div class="enr01-honeypot" aria-hidden="true">
+        <label for="enr01-website">Website</label>
+        <input id="enr01-website" name="website" type="text" tabindex="-1" autocomplete="off" />
+      </div>
+      <button class="enr01-submit" id="enr01-submit" type="submit">Enroll &amp; open module</button>
+    </form>
+  </div>
+
+  <!-- Phase B: Success -->
+  <div class="enr01-success" id="enr01-success-phase" aria-live="polite">
+    <p class="enr01-eyebrow">You're enrolled</p>
+    <h2 class="enr01-success-title">Welcome, <span id="enr01-success-name">learner</span>.</h2>
+    <p class="enr01-success-sub">Module 01 is unlocked below. Your record is saved.</p>
+    <iframe class="enr01-success-frame" id="enr01-frame" title="Module 01 eLearning widget"
+      src="about:blank" allow="fullscreen" referrerpolicy="no-referrer"></iframe>
+    <p class="enr01-success-foot">
+      <span>Stuck loading? <a href="https://jhlburke-code.github.io/eLearning/widgets/tabbed-content/" target="_blank" rel="noopener noreferrer">Open the module in a new tab &rarr;</a></span>
+      <button class="enr01-reenroll" id="enr01-reenroll" type="button">Re-enroll with a different email</button>
+    </p>
+  </div>
+</div>
+
+<script>
+(function(){
+  try {
+    var root = document.getElementById('custom-container-enroll-01');
+    if (!root) { console.error('[enr01] container missing'); return; }
+
+    var SUPABASE_URL = 'https://axwipqlykysnxudnejvi.supabase.co';
+    var SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF4d2lwcWx5a3lzbnh1ZG5lanZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ0ODg2NTcsImV4cCI6MjEwMDA2NDY1N30.uTgP-OfI5NtknLCw_LjvXY3tTKNfKc83DJcFRrvwgb8';
+    var MODULE_SLUG = 'tabbed-content/v2';
+    var TABBED_WIDGET = 'https://jhlburke-code.github.io/eLearning/widgets/tabbed-content/';
+
+    var form = root.querySelector('#enr01-form');
+    var submit = root.querySelector('#enr01-submit');
+    var banner = root.querySelector('#enr01-banner');
+    var phaseA = root.querySelector('#enr01-form-phase');
+    var phaseB = root.querySelector('#enr01-success-phase');
+    var nameInput = root.querySelector('#enr01-name');
+    var emailInput = root.querySelector('#enr01-email');
+    var errName = root.querySelector('#enr01-err-name');
+    var errEmail = root.querySelector('#enr01-err-email');
+    var frame = root.querySelector('#enr01-frame');
+    var successName = root.querySelector('#enr01-success-name');
+    var reenroll = root.querySelector('#enr01-reenroll');
+
+    var EMAIL_RE = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+
+    function setBanner(text, kind){
+      banner.textContent = text;
+      banner.className = 'enr01-banner ' + (kind === 'error' ? 'is-error' : 'is-info');
+    }
+    function clearBanner(){
+      banner.textContent = '';
+      banner.className = 'enr01-banner';
+    }
+    function setError(el, msg){
+      el.textContent = msg || '';
+      var input = el.previousElementSibling;
+      if (input && input.classList) {
+        if (msg) input.classList.add('is-invalid');
+        else input.classList.remove('is-invalid');
+      }
+    }
+
+    function showSuccess(name){
+      phaseA.style.display = 'none';
+      phaseB.classList.add('is-active');
+      successName.textContent = name;
+      frame.src = TABBED_WIDGET;
+      try { window.enr01ReportCompletion(); } catch (e) {}
+    }
+
+    function postToSupabase(payload){
+      return fetch(SUPABASE_URL + '/rest/v1/' + encodeURIComponent('eLearning_test_database'), {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': 'Bearer ' + SUPABASE_KEY,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal,resolution=merge-duplicates'
+        },
+        body: JSON.stringify(payload)
+      });
+    }
+
+    function validate(name, email){
+      var ok = true;
+      if (!name || name.trim().length < 2) {
+        setError(errName, 'Please enter your full name (at least 2 characters).');
+        ok = false;
+      } else { setError(errName, ''); }
+      if (!email || !EMAIL_RE.test(email.trim())) {
+        setError(errEmail, 'Please enter a valid email address.');
+        ok = false;
+      } else { setError(errEmail, ''); }
+      return ok;
+    }
+
+    function handleSubmit(e){
+      e.preventDefault();
+      clearBanner();
+      var honeypot = root.querySelector('#enr01-website');
+      if (honeypot && honeypot.value) {
+        showSuccess('friend');
+        return;
+      }
+      var name = (nameInput.value || '').trim();
+      var email = (emailInput.value || '').trim().toLowerCase();
+      if (!validate(name, email)) return;
+
+      submit.disabled = true;
+      var prevLabel = submit.textContent;
+      submit.textContent = 'Enrolling...';
+
+      postToSupabase({
+        full_name: name,
+        email: email,
+        module: MODULE_SLUG
+      })
+      .then(function(res){
+        submit.disabled = false;
+        submit.textContent = prevLabel;
+        if (res.ok) {
+          showSuccess(name);
+          return;
+        }
+        return res.text().then(function(t){
+          throw new Error('Server returned ' + res.status + (t ? ': ' + t.slice(0, 200) : ''));
+        });
+      })
+      .catch(function(err){
+        submit.disabled = false;
+        submit.textContent = prevLabel;
+        setBanner('Could not enroll right now. ' + (err && err.message ? err.message : 'Please try again.'), 'error');
+      });
+    }
+
+    form.addEventListener('submit', handleSubmit);
+    if (reenroll) {
+      reenroll.addEventListener('click', function(){
+        phaseB.classList.remove('is-active');
+        phaseA.style.display = '';
+        nameInput.value = '';
+        emailInput.value = '';
+        frame.src = 'about:blank';
+        nameInput.focus();
+      });
+    }
+
+    // Event delegation: any descendant click on submit button
+    root.addEventListener('click', function(e){
+      var t = e.target;
+      while (t && t !== root) {
+        if (t.id === 'enr01-submit' && t.tagName === 'BUTTON') {
+          // Native form submit handler covers this; delegated handler for completeness
+          break;
+        }
+        t = t.parentNode;
+      }
+    });
+  } catch (err) {
+    console.error('[enr01]', err);
+  }
+
+  window.enr01ReportCompletion = function(){
+    try { window.parent.postMessage({ type: 'complete' }, '*'); }
+    catch (e) { console.error('[enr01] postMessage failed', e); }
+  };
+})();
+</script>
+</body>
+</html>
