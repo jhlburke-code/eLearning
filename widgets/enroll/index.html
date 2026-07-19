@@ -154,7 +154,17 @@
 
     var SUPABASE_URL = 'https://axwipqlykysnxudnejvi.supabase.co';
     var SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF4d2lwcWx5a3lzbnh1ZG5lanZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ0ODg2NTcsImV4cCI6MjEwMDA2NDY1N30.uTgP-OfI5NtknLCw_LjvXY3tTKNfKc83DJcFRrvwgb8';
-    var MODULE_SLUG = 'tabbed-content/v2';
+    // Default module for the canonical use. Override by appending ?module=<slug>
+    // to the widget URL, e.g. ?module=ai-team-transformation/v1
+    function getModuleSlug() {
+      try {
+        var u = new URL(window.location.href);
+        var m = u.searchParams.get('module');
+        if (m && /^[a-z0-9][a-z0-9/_-]{2,80}$/.test(m)) return m;
+      } catch (_) {}
+      return 'tabbed-content/v2';
+    }
+    var MODULE_SLUG = getModuleSlug();
     var SEND_LINK_URL = 'https://axwipqlykysnxudnejvi.supabase.co/functions/v1/enroll_send_link';
 
     var form = root.querySelector('#enr01-form');
