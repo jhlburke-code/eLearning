@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>eLearning &middot; Reports</title>
+<link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; padding: 0 0 40px 0; background-color: transparent; }
+  #custom-container-report-01,
+  #custom-container-report-01 * { box-sizing: border-box; }
+  #custom-container-report-01 {
+    font-family: 'Urbanist', sans-serif;
+    background-color: #F4F7FA;
+    max-width: 1100px;
+    width: calc(100% - 32px);
+    margin: 24px auto;
+    border-radius: 8px;
+    padding: 28px 32px;
+    color: #0F2347;
+    border: 1px solid #0F2347;
+  }
+  .rep01-eyebrow { font-size: 13px; font-weight: 600; letter-spacing: 0.25em; text-transform: uppercase; color: #CC2229; margin: 0 0 8px; }
+  .rep01-title { font-family: 'Urbanist', sans-serif; font-weight: 700; font-size: 24px; color: #1B3A6B; margin: 0 0 6px; line-height: 1.2; }
+  .rep01-sub { font-size: 13px; color: rgba(15,35,71,0.65); margin: 0 0 18px; }
+
+  .rep01-stats { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
+  .rep01-stat { flex: 1 1 140px; background: #FFFFFF; border: 1px solid rgba(15,35,71,0.12); border-radius: 6px; padding: 12px 14px; }
+  .rep01-stat-label { font-size: 11px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(15,35,71,0.62); }
+  .rep01-stat-value { font-family: 'Urbanist', sans-serif; font-weight: 700; font-size: 28px; color: #1B3A6B; line-height: 1.1; margin-top: 4px; }
+  .rep01-stat-value.is-rate-good { color: #1B3A6B; }
+  .rep01-stat-value.is-rate-warn { color: #CC2229; }
+
+  .rep01-section-title { font-family: 'Urbanist', sans-serif; font-weight: 700; font-size: 16px; color: #1B3A6B; margin: 18px 0 8px; }
+  .rep01-table { width: 100%; border-collapse: collapse; background: #FFFFFF; border-radius: 6px; overflow: hidden; border: 1px solid rgba(15,35,71,0.12); font-size: 14px; }
+  .rep01-table th { background: rgba(27,58,107,0.06); color: #1B3A6B; text-align: left; padding: 10px 12px; font-weight: 700; font-size: 12px; letter-spacing: 0.05em; text-transform: uppercase; }
+  .rep01-table td { padding: 10px 12px; border-top: 1px solid rgba(15,35,71,0.08); color: #0F2347; vertical-align: top; }
+  .rep01-table tr:nth-child(even) td { background: rgba(15,35,71,0.025); }
+  .rep01-table td.is-name { font-weight: 600; }
+  .rep01-table td.is-email { color: rgba(15,35,71,0.78); font-family: 'Menlo', 'Consolas', monospace; font-size: 12px; }
+  .rep01-badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; letter-spacing: 0.04em; }
+  .rep01-badge.complete { background: rgba(27,58,107,0.10); color: #1B3A6B; }
+  .rep01-badge.partial { background: rgba(204,34,41,0.10); color: #CC2229; }
+  .rep01-badge.never { background: rgba(15,35,71,0.08); color: rgba(15,35,71,0.62); }
+
+  .rep01-empty, .rep01-error, .rep01-loading {
+    padding: 40px 16px; text-align: center; border-radius: 6px; border: 1px dashed rgba(15,35,71,0.22);
+    background: #FFFFFF; color: rgba(15,35,71,0.62); font-size: 14px;
+  }
+  .rep01-error { border-color: #CC2229; color: #CC2229; background: rgba(204,34,41,0.04); }
+
+  .rep01-foot { font-size: 12px; color: rgba(15,35,71,0.55); margin-top: 14px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+  .rep01-refresh { background: #1B3A6B; color: #FFFFFF; border: none; padding: 6px 12px; font-size: 12px; font-weight: 600; border-radius: 4px; cursor: pointer; font-family: 'Urbanist', sans-serif; transition: background-color 0.18s ease; }
+  .rep01-refresh:hover { background: #CC2229; }
+  .rep01-refresh:focus-visible { outline: 2px solid #CC2229; outline-offset: 2px; }
+
+  @media (max-width: 768px) {
+    #custom-container-report-01 { width: calc(100% - 24px); padding: 22px 16px; }
+    .rep01-title { font-size: 20px; }
+    .rep01-table th:nth-child(4), .rep01-table td:nth-child(4) { display: none; } /* hide enrolled-at on narrow */
+  }
+</style>
+</head>
+<body>
+<div id="custom-container-report-01" role="region" aria-label="eLearning enrollment report">
+  <p class="rep01-eyebrow" id="rep01-eyebrow">Reports</p>
+  <h2 class="rep01-title" id="rep01-title">Enrollment &amp; Completion</h2>
+  <p class="rep01-sub" id="rep01-sub">Loading…</p>
+  <div id="rep01-body"></div>
+</div>
+
+<script>
+(function(){
+  try {
+    var root = document.getElementById('custom-container-report-01');
+    if (!root) { console.error('[rep01] container missing'); return; }
+
+    var SUPABASE_URL = 'https://axwipqlykysnxudnejvi.supabase.co';
+    var SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF4d2lwcWx5a3lzbnh1ZG5lanZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ0ODg2NTcsImV4cCI6MjEwMDA2NDY1N30.uTgP-OfI5NtknLCw_LjvXY3tTKNfKc83DJcFRrvwgb8';
+
+    var eyebrow = root.querySelector('#rep01-eyebrow');
+    var title = root.querySelector('#rep01-title');
+    var sub = root.querySelector('#rep01-sub');
+    var body = root.querySelector('#rep01-body');
+
+    function params() {
+      var u = new URL(window.location.href);
+      return { module: u.searchParams.get('module') };
+    }
+
+    function fmtDate(s) {
+      if (!s) return '&mdash;';
+      var d = new Date(s);
+      if (isNaN(d.getTime())) return '&mdash;';
+      var pad = function(n){ return n < 10 ? '0' + n : '' + n; };
+      return d.getUTCFullYear() + '-' + pad(d.getUTCMonth() + 1) + '-' + pad(d.getUTCDate())
+        + ' ' + pad(d.getUTCHours()) + ':' + pad(d.getUTCMinutes()) + ' UTC';
+    }
+
+    function escapeHtml(s){
+      return String(s == null ? '' : s)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    function badge(count) {
+      if (!count) return '<span class="rep01-badge never">Never</span>';
+      if (count >= 1) return '<span class="rep01-badge complete">' + count + '&times; complete</span>';
+      return '<span class="rep01-badge partial">&mdash;</span>';
+    }
+
+    function setLoading() {
+      sub.textContent = 'Loading…';
+      body.innerHTML = '<div class="rep01-loading">Fetching live data…</div>';
+    }
+    function setError(msg) {
+      sub.textContent = 'Error';
+      body.innerHTML = '<div class="rep01-error">' + escapeHtml(msg) + '</div>';
+    }
+    function setEmpty() {
+      sub.textContent = 'No data yet';
+      body.innerHTML = '<div class="rep01-empty">No enrollments for this eLearning yet. Once learners submit the form, rows will appear here.</div>';
+    }
+
+    function fetchReport(moduleFilter){
+      // RPC: returns aggregated rows. Empty body or {"p_module":null} for all.
+      var body = moduleFilter ? { p_module: moduleFilter } : {};
+      return fetch(SUPABASE_URL + '/rest/v1/rpc/get_elearning_report', {
+        method: 'POST',
+        headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+    }
+
+    function render(rows, moduleFilter) {
+      var moduleLabel = moduleFilter || 'All eLearnings';
+      eyebrow.textContent = moduleFilter ? 'Module report' : 'All-modules report';
+      title.textContent = moduleFilter ? ('📚 ' + moduleFilter) : '📚 Enrollment & Completion · all modules';
+
+      if (!rows.length) {
+        sub.textContent = '0 enrollments';
+        setEmpty();
+        return;
+      }
+
+      // Aggregate by module (so even if no moduleFilter is set, we can group)
+      var byModule = {};
+      rows.forEach(function(r){
+        if (!byModule[r.module]) byModule[r.module] = [];
+        byModule[r.module].push(r);
+      });
+
+      // Stats (overall)
+      var totalEnrollments = rows.reduce(function(s, r){ return s + (r.enroll_count || 0); }, 0);
+      var totalUniqueLearners = rows.length;
+      var totalCompletions = rows.reduce(function(s, r){ return s + (r.completion_count || 0); }, 0);
+      var completionRate = totalEnrollments ? Math.round((totalCompletions / totalEnrollments) * 100) : 0;
+      var rateClass = completionRate >= 70 ? 'is-rate-good' : (completionRate >= 30 ? 'is-rate-good' : 'is-rate-warn');
+
+      sub.textContent = rows.length + ' learner' + (rows.length === 1 ? '' : 's') +
+        ' · ' + Object.keys(byModule).length + ' module' + (Object.keys(byModule).length === 1 ? '' : 's');
+
+      var html = '';
+      html += '<div class="rep01-stats">';
+      html += '<div class="rep01-stat"><div class="rep01-stat-label">Total enrollments</div><div class="rep01-stat-value">' + totalEnrollments + '</div></div>';
+      html += '<div class="rep01-stat"><div class="rep01-stat-label">Unique learners</div><div class="rep01-stat-value">' + totalUniqueLearners + '</div></div>';
+      html += '<div class="rep01-stat"><div class="rep01-stat-label">Completions</div><div class="rep01-stat-value">' + totalCompletions + '</div></div>';
+      html += '<div class="rep01-stat"><div class="rep01-stat-label">Completion rate</div><div class="rep01-stat-value ' + rateClass + '">' + completionRate + '%</div></div>';
+      html += '</div>';
+
+      Object.keys(byModule).forEach(function(mod){
+        html += '<div class="rep01-section-title">📦 ' + escapeHtml(mod) + ' &mdash; ' + byModule[mod].length + ' learner' + (byModule[mod].length === 1 ? '' : 's') + '</div>';
+        html += '<table class="rep01-table"><thead><tr>';
+        html += '<th scope="col">Name</th><th scope="col">Email</th><th scope="col">Enrolled</th><th scope="col">Visits</th><th scope="col">Completions</th><th scope="col">Last completed</th>';
+        html += '</tr></thead><tbody>';
+        byModule[mod].forEach(function(r){
+          html += '<tr>';
+          html += '<td class="is-name">' + escapeHtml(r.full_name) + '</td>';
+          html += '<td class="is-email">' + escapeHtml(r.email) + '</td>';
+          html += '<td>' + fmtDate(r.enrolled_at) + '</td>';
+          html += '<td>' + (r.enroll_count || 0) + '</td>';
+          html += '<td>' + badge(r.completion_count) + '</td>';
+          html += '<td>' + fmtDate(r.last_completed_at) + '</td>';
+          html += '</tr>';
+        });
+        html += '</tbody></table>';
+      });
+
+      html += '<div class="rep01-foot"><span>Live data — refreshed on load &amp; on click. Source: Supabase <code>get_elearning_report</code>.</span><button class="rep01-refresh" id="rep01-refresh" type="button">Refresh</button></div>';
+      body.innerHTML = html;
+      var btn = document.getElementById('rep01-refresh');
+      if (btn) btn.addEventListener('click', load);
+    }
+
+    function load() {
+      var p = params();
+      setLoading();
+      fetchReport(p.module)
+        .then(function(res){
+          if (!res.ok) return res.text().then(function(t){
+            throw new Error('HTTP ' + res.status + (t ? ': ' + t.slice(0, 200) : ''));
+          });
+          return res.json();
+        })
+        .then(function(rows){
+          render(Array.isArray(rows) ? rows : [], p.module);
+        })
+        .catch(function(err){
+          setError((err && err.message) || 'Could not load report');
+        });
+    }
+
+    load();
+  } catch (err) {
+    console.error('[rep01]', err);
+  }
+})();
+</script>
+</body>
+</html>

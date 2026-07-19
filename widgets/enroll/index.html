@@ -132,6 +132,11 @@
     var SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF4d2lwcWx5a3lzbnh1ZG5lanZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ0ODg2NTcsImV4cCI6MjEwMDA2NDY1N30.uTgP-OfI5NtknLCw_LjvXY3tTKNfKc83DJcFRrvwgb8';
     var MODULE_SLUG = 'tabbed-content/v2';
     var TABBED_WIDGET = 'https://jhlburke-code.github.io/eLearning/widgets/tabbed-content/';
+    var COMPLETIONS_TABLE = 'eLearning_completions';
+
+    // Set after a successful enrollment. Used as the identifier when the inner iframe
+    // fires { type: 'complete' } postMessage on module completion.
+    var currentEmail = null;
 
     var form = root.querySelector('#enr01-form');
     var submit = root.querySelector('#enr01-submit');
@@ -165,12 +170,13 @@
       }
     }
 
-    function showSuccess(name){
+    function showSuccess(name, email){
       phaseA.style.display = 'none';
       phaseB.classList.add('is-active');
       successName.textContent = name;
       frame.src = TABBED_WIDGET;
       try { window.enr01ReportCompletion(); } catch (e) {}
+      currentEmail = email;
     }
 
     function postToSupabase(payload){
@@ -208,7 +214,8 @@
       clearBanner();
       var honeypot = root.querySelector('#enr01-website');
       if (honeypot && honeypot.value) {
-        showSuccess('friend');
+        // Bot detected — pretend to succeed silently without contacting Supabase.
+        showSuccess('friend', null);
         return;
       }
       var name = (nameInput.value || '').trim();
@@ -229,7 +236,7 @@
         submit.textContent = prevLabel;
         // 201: fresh enrollment.  409: already enrolled (UNIQUE on email). Both → success.
         if (res.ok || res.status === 409) {
-          showSuccess(name);
+          showSuccess(name, email);
           return;
         }
         return res.text().then(function(t){
@@ -251,9 +258,36 @@
         nameInput.value = '';
         emailInput.value = '';
         frame.src = 'about:blank';
+        currentEmail = null;
         nameInput.focus();
       });
     }
+
+    // Listen for completion signals from the inner tabbed-content iframe.
+    // The inner widget fires {type:'complete'} when the user clicks "Mark module complete".
+    // We forward it as a new row in `eLearning_completions` for the report widget to aggregate.
+    window.addEventListener('message', function(e){
+      try {
+        var d = e && e.data;
+        if (!d || d.type !== 'complete' || !currentEmail) return;
+        fetch(SUPABASE_URL + '/rest/v1/' + encodeURIComponent(COMPLETIONS_TABLE), {
+          method: 'POST',
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify({ email: currentEmail, module: MODULE_SLUG })
+        }).then(function(r){
+          if (r.ok) console.log('[enr01] completion recorded for', currentEmail);
+          else console.warn('[enr01] completion POST status', r.status);
+        }).catch(function(err){
+          console.error('[enr01] completion POST failed', err);
+        });
+      } catch (err) {
+        console.error('[enr01] message handler', err);
+      }
+    });
 
     // Event delegation: any descendant click on submit button
     root.addEventListener('click', function(e){
