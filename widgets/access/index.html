@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>eLearning &middot; Access</title>
 <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <style>
   body { margin: 0; padding: 0 0 40px 0; background-color: transparent; }
   #custom-container-access-01,
@@ -22,7 +25,7 @@
   }
   .acc01-eyebrow { font-size: 13px; font-weight: 600; letter-spacing: 0.25em; text-transform: uppercase; color: #CC2229; margin: 0 0 8px; }
   .acc01-title { font-family: 'Urbanist', sans-serif; font-weight: 700; font-size: 26px; color: #1B3A6B; margin: 0 0 6px; line-height: 1.2; }
-  .acc01-sub { font-size: 14px; color: rgba(15,35,71,0.78); margin: 0 0 18px; }
+  .acc01-sub { font-size: 14px; color: rgba(15,35,71,0.78); margin: 0 0 18px; min-height: 1.5em; }
   .acc01-sub strong { color: #1B3A6B; font-weight: 700; }
 
   .acc01-frame {
@@ -32,6 +35,7 @@
 
   .acc01-banner { padding: 12px 14px; border-radius: 4px; font-size: 14px; margin-bottom: 14px; display: none; }
   .acc01-banner.is-error { display: block; background: rgba(204,34,41,0.10); color: #CC2229; border: 1px solid rgba(204,34,41,0.32); }
+  .acc01-banner.is-info { display: block; background: rgba(27,58,107,0.08); color: #1B3A6B; border: 1px solid rgba(27,58,107,0.22); }
 
   .acc01-loading, .acc01-error, .acc01-empty {
     padding: 36px 16px; text-align: center; border-radius: 6px;
@@ -39,6 +43,9 @@
     border: 1px dashed rgba(15,35,71,0.22);
   }
   .acc01-error { border-color: #CC2229; color: #CC2229; background: rgba(204,34,41,0.04); }
+
+  .acc01-error-detail { font-size: 12px; color: rgba(15,35,71,0.5); margin-top: 12px; font-family: 'Menlo', 'Consolas', monospace; word-break: break-all; }
+  .acc01-actions { margin-top: 14px; display: flex; gap: 10px; flex-wrap: wrap; }
 
   .acc01-foot { font-size: 12px; color: rgba(15,35,71,0.55); margin-top: 14px; }
 
@@ -79,47 +86,79 @@
         .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     }
 
-    function setLoading(){
-      titleEl.textContent = 'Verifying your link…';
-      subEl.innerHTML = 'One moment.';
-      body.innerHTML = '<div class="acc01-loading">Checking your access token…</div>';
+    function setState(title, sub){
+      titleEl.textContent = title;
+      subEl.textContent = sub;
     }
-    function setError(msg){
-      titleEl.textContent = 'Access link not valid';
-      banner.textContent = msg;
-      banner.className = 'acc01-banner is-error';
-      body.innerHTML = '<div class="acc01-error">' + escapeHtml(msg) + '</div>';
+    function setBanner(text, kind){
+      banner.textContent = text;
+      banner.className = 'acc01-banner ' + (kind === 'error' ? 'is-error' : 'is-info');
+    }
+    function clearBanner(){
+      banner.textContent = '';
+      banner.className = 'acc01-banner';
+    }
+    function setError(msg, detail){
+      setState('Access link not valid', 'We could not verify this link. Re-enroll to receive a fresh one.');
+      setBanner(msg, 'error');
+      var html = '<div class="acc01-error">' + escapeHtml(msg) + '</div>';
+      if (detail) html += '<div class="acc01-error-detail">' + escapeHtml(detail) + '</div>';
+      html += '<div class="acc01-actions"><a class="enr01-btn is-secondary" style="font-size:13px;font-family:Urbanist,sans-serif;font-weight:600;padding:10px 16px;border-radius:4px;text-decoration:none;background:transparent;color:#0F2347;border:1px solid rgba(15,35,71,0.32);" href="https://jhlburke-code.github.io/eLearning/widgets/enroll/" target="_top">Enroll again &rarr;</a></div>';
+      body.innerHTML = html;
     }
 
+    // Token extraction — robust against tracking redirectors stripping the query.
     function getToken() {
-      var u = new URL(window.location.href);
-      return u.searchParams.get('token');
+      // 1. Standard query param
+      try {
+        var u = new URL(window.location.href);
+        var t = u.searchParams.get('token');
+        if (t) return t.trim();
+      } catch (_) {}
+      // 2. Hash fragment (in case tracking strips ? but leaves #token=)
+      try {
+        var h = window.location.hash.replace(/^#/, '');
+        var parts = h.split('&');
+        for (var i = 0; i < parts.length; i++) {
+          var kv = parts[i].split('=');
+          if (decodeURIComponent(kv[0]) === 'token' && kv[1]) return decodeURIComponent(kv[1]).trim();
+        }
+      } catch (_) {}
+      // 3. Heuristic — find a UUID-shaped value in any part of the URL
+      var href = window.location.href;
+      var m = href.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
+      if (m) return m[0];
+      return null;
     }
 
     function widgetUrlFor(moduleSlug) {
-      // Map our stored module slug (e.g. "tabbed-content/v2") to a widget URL.
-      // v1 supports only tabbed-content; future modules would map here too.
       var key = (moduleSlug || '').split('/')[0];
       return TAB_BASE + encodeURIComponent(key) + '/';
     }
 
     function verifyToken(token) {
+      // Two header styles in case one is stripped:
+      // - apikey only (PostgREST anon path)
+      // - apikey + Authorization: Bearer apikey (some envs expect this)
       return fetch(SUPABASE_URL + '/rest/v1/rpc/verify_access_token', {
         method: 'POST',
-        headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': 'Bearer ' + SUPABASE_KEY,
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify({ p_token: token })
       }).then(function(r){
-        if (!r.ok) throw new Error('verify_access_token HTTP ' + r.status);
-        return r.json();
+        return r.text().then(function(text){
+          return { status: r.status, ok: r.ok, body: text };
+        });
       });
     }
 
     function showModule(email, moduleSlug) {
-      titleEl.textContent = 'Welcome back, ' + email + '.';
-      subEl.innerHTML = 'You\'re enrolled in <strong>' + escapeHtml(moduleSlug) + '</strong> · unique-link session · valid for 7 days from issue.';
-      // Hide banner if it was an error (it shouldn't be on success)
-      banner.className = 'acc01-banner';
-      banner.textContent = '';
+      setState('Welcome back, ' + email + '.',
+               'You\'re enrolled in ' + moduleSlug + ' · unique-link session · valid for 7 days from issue.');
+      clearBanner();
       var url = widgetUrlFor(moduleSlug);
       body.innerHTML =
         '<iframe class="acc01-frame" id="acc01-frame" title="eLearning content" src="' + escapeHtml(url) + '" allow="fullscreen" referrerpolicy="no-referrer"></iframe>' +
@@ -127,45 +166,61 @@
     }
 
     function recordCompletion(email, module) {
-      // Forward inner tabbed-content's {type:'complete'} postMessage to the completions table.
-      // (This mirrors what the enroll widget does — the access widget is the new home for that hop.)
       window.addEventListener('message', function(e){
         try {
           var d = e && e.data;
           if (!d || d.type !== 'complete' || !email) return;
           fetch(SUPABASE_URL + '/rest/v1/eLearning_completions', {
             method: 'POST',
-            headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+            headers: {
+              'apikey': SUPABASE_KEY,
+              'Authorization': 'Bearer ' + SUPABASE_KEY,
+              'Content-Type': 'application/json',
+              'Prefer': 'return=minimal'
+            },
             body: JSON.stringify({ email: email, module: module })
-          }).then(function(r){
-            if (r.ok) console.log('[acc01] completion recorded for', email);
-            else console.warn('[acc01] completion POST status', r.status);
           }).catch(function(err){ console.error('[acc01] completion POST failed', err); });
         } catch (err) { console.error('[acc01] message handler', err); }
       });
     }
 
     function init() {
-      setLoading();
+      setState('Verifying your link…', 'One moment.');
+      body.innerHTML = '<div class="acc01-loading">Checking your access token&hellip;</div>';
+
       var token = getToken();
       if (!token) {
-        setError('No access token in URL. Use the link from your enrollment email.');
+        setError('No access token found in the URL.',
+                 'The link you followed does not contain a token. This can happen if a redirect stripped the query string. Try the email button again, or copy/paste the long URL from the email body.');
         return;
       }
-      verifyToken(token)
-        .then(function(rows){
-          if (!Array.isArray(rows) || rows.length === 0) {
-            setError('This link has expired or is not valid. Enroll again to receive a new access link.');
+
+      verifyToken(token).then(function(r){
+        if (r.ok) {
+          var rows = [];
+          try { rows = JSON.parse(r.body); } catch (_) {}
+          if (Array.isArray(rows) && rows.length > 0) {
+            var email = rows[0].email;
+            var module = rows[0].module;
+            showModule(email, module);
+            recordCompletion(email, module);
             return;
           }
-          var email = rows[0].email;
-          var module = rows[0].module;
-          showModule(email, module);
-          recordCompletion(email, module);
-        })
-        .catch(function(err){
-          setError((err && err.message) || 'Could not verify your access link.');
-        });
+          setError('This link has expired or is not valid.',
+                   'Token: ' + token + ' &middot; RPC status 200 with 0 rows. Re-enroll to receive a fresh link.');
+          return;
+        }
+        // RPC error
+        if (r.status === 401 || r.status === 403) {
+          setError('Could not reach the verification service.',
+                   'RPC status ' + r.status + '. This is usually an ad-blocker or extension stripping the apikey header. Try a different network or incognito mode.');
+        } else {
+          setError('Could not verify the access link (HTTP ' + r.status + ').',
+                   'Body: ' + (r.body || '').slice(0, 300));
+        }
+      }).catch(function(err){
+        setError('Network error.', (err && err.message) || 'Could not reach the verification service.');
+      });
     }
 
     init();
