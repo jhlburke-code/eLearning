@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>eLearning &middot; Org-AI Conversations</title>
+<link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<style>
+  body { margin: 0; padding: 0 0 40px 0; background-color: transparent; }
+  #custom-container-org-01,
+  #custom-container-org-01 * { box-sizing: border-box; }
+  #custom-container-org-01 {
+    font-family: 'Urbanist', sans-serif;
+    background-color: #F4F7FA;
+    max-width: 900px;
+    width: calc(100% - 32px);
+    margin: 24px auto;
+    border-radius: 8px;
+    padding: 28px 32px;
+    color: #0F2347;
+    border: 1px solid #0F2347;
+  }
+
+  .org01-eyebrow { font-size: 13px; font-weight: 600; letter-spacing: 0.28em; text-transform: uppercase; color: #CC2229; margin: 0 0 8px; }
+  .org01-title { font-family: 'Urbanist', sans-serif; font-weight: 800; font-size: 32px; line-height: 1.1; color: #1B3A6B; margin: 0 0 6px; }
+  .org01-sub { font-size: 14px; line-height: 1.55; color: rgba(15,35,71,0.72); margin: 0 0 22px; }
+
+  /* Stage */
+  .org01-stage {
+    background: #FFFFFF;
+    border-radius: 8px;
+    padding: 22px 24px 18px;
+    border: 1px solid rgba(15,35,71,0.10);
+  }
+  .org01-setting {
+    font-size: 12px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase;
+    color: rgba(15,35,71,0.55);
+    margin: 0 0 14px;
+    border-bottom: 1px dashed rgba(15,35,71,0.12);
+    padding-bottom: 10px;
+  }
+
+  .org01-bubble-row {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 0 0 18px;
+    position: relative;
+    min-height: 240px;
+  }
+  .org01-bubble {
+    display: flex;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: 8px;
+    background: rgba(27,58,107,0.04);
+    border: 1px solid rgba(27,58,107,0.10);
+    max-width: 88%;
+    opacity: 0;
+    transform: translateX(-22px);
+    transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.35s ease;
+  }
+  .org01-bubble.b {
+    align-self: flex-end;
+    background: rgba(204,34,41,0.04);
+    border-color: rgba(204,34,41,0.14);
+    transform: translateX(22px);
+  }
+  .org01-stage.is-entered .org01-bubble.a {
+    opacity: 1; transform: translateX(0); transition-delay: 0.05s;
+  }
+  .org01-stage.is-entered .org01-bubble.b {
+    opacity: 1; transform: translateX(0); transition-delay: 0.18s;
+  }
+
+  .org01-avatar {
+    flex: 0 0 36px;
+    width: 36px; height: 36px;
+    border-radius: 999px;
+    background: #1B3A6B;
+    color: #FFFFFF;
+    display: inline-flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .org01-bubble.b .org01-avatar { background: #CC2229; }
+  .org01-avatar svg { width: 20px; height: 20px; }
+
+  .org01-bubble-text {
+    flex: 1;
+  }
+  .org01-speaker {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+    color: #1B3A6B;
+    margin: 0 0 4px;
+  }
+  .org01-bubble.b .org01-speaker { color: #CC2229; }
+  .org01-line {
+    font-size: 16px; line-height: 1.5; color: #0F2347;
+    margin: 0;
+  }
+  .org01-line::before { content: '\201C'; color: rgba(15,35,71,0.3); margin-right: 2px; }
+  .org01-line::after  { content: '\201D'; color: rgba(15,35,71,0.3); margin-left: 2px; }
+
+  /* Controls */
+  .org01-controls {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px;
+  }
+  .org01-progress {
+    font-size: 13px; color: rgba(15,35,71,0.62);
+    font-variant-numeric: tabular-nums;
+  }
+  .org01-progress strong { color: #1B3A6B; font-weight: 700; }
+  .org01-btn {
+    font-family: 'Urbanist', sans-serif; font-weight: 600;
+    padding: 10px 18px; border-radius: 4px; cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease, transform 0.15s ease;
+  }
+  .org01-btn.is-primary { background: #1B3A6B; color: #FFFFFF; border: 1px solid #1B3A6B; }
+  .org01-btn.is-primary:hover { background: #CC2229; border-color: #CC2229; }
+  .org01-btn.is-secondary {
+    background: transparent; color: #0F2347; border: 1px solid rgba(15,35,71,0.32);
+  }
+  .org01-btn.is-secondary:hover { background: rgba(15,35,71,0.06); border-color: #1B3A6B; }
+  .org01-btn:focus-visible { outline: 2px solid #CC2229; outline-offset: 2px; }
+  .org01-btn[disabled] { opacity: 0.4; cursor: not-allowed; }
+
+  /* Completion */
+  .org01-complete-wrap { margin-top: 18px; }
+  .org01-complete-btn {
+    background-color: #1B3A6B; color: #FFFFFF; border: none;
+    padding: 12px 24px; font-size: 14px; cursor: pointer;
+    font-family: 'Urbanist', sans-serif; font-weight: 600;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+  }
+  .org01-complete-btn:hover { background-color: #CC2229; }
+  .org01-complete-btn:focus-visible { outline: 2px solid #CC2229; outline-offset: 2px; }
+  .org01-complete-btn[disabled] { opacity: 0.45; cursor: not-allowed; }
+  .org01-complete-btn[data-completed="true"] {
+    background-color: #1B3A6B; opacity: 1; cursor: default; pointer-events: none;
+  }
+  .org01-complete-btn[data-completed="true"]::before {
+    content: "\2713"; margin-right: 8px; font-weight: 800;
+  }
+  .org01-banner {
+    display: none;
+    margin-top: 12px; padding: 10px 14px;
+    background: rgba(27,58,107,0.08); color: #1B3A6B;
+    border: 1px solid rgba(27,58,107,0.22); border-radius: 4px;
+    font-size: 14px; line-height: 1.4;
+  }
+  .org01-banner.is-shown { display: block; }
+
+  @media (max-width: 768px) {
+    #custom-container-org-01 { padding: 22px 16px; }
+    .org01-title { font-size: 24px; }
+    .org01-bubble { max-width: 100%; }
+  }
+</style>
+</head>
+<body>
+<div id="custom-container-org-01" role="region" aria-label="How AI shifts who-talks-to-whom">
+  <p class="org01-eyebrow">eLearning &middot; Scenario brief</p>
+  <h2 class="org01-title">How AI shifts who-talks-to-whom</h2>
+  <p class="org01-sub">Eight short conversations from teams running on AI. Click through &mdash; each one's a single exchange.</p>
+
+  <div class="org01-stage" id="org01-stage">
+    <p class="org01-setting">Setting &middot; <span id="org01-setting-text"></span></p>
+    <div class="org01-bubble-row" id="org01-bubble-row">
+      <div class="org01-bubble a" id="org01-bubble-a">
+        <span class="org01-avatar" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="9" r="3.5"/>
+            <path d="M5 20 C5 16 8 14 12 14 C16 14 19 16 19 20"/>
+          </svg>
+        </span>
+        <div class="org01-bubble-text">
+          <p class="org01-speaker" id="org01-speaker-a">&mdash;</p>
+          <p class="org01-line" id="org01-line-a"></p>
+        </div>
+      </div>
+      <div class="org01-bubble b" id="org01-bubble-b">
+        <span class="org01-avatar" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="9" r="3.5"/>
+            <path d="M5 20 C5 16 8 14 12 14 C16 14 19 16 19 20"/>
+          </svg>
+        </span>
+        <div class="org01-bubble-text">
+          <p class="org01-speaker" id="org01-speaker-b">&mdash;</p>
+          <p class="org01-line" id="org01-line-b"></p>
+        </div>
+      </div>
+    </div>
+    <div class="org01-controls">
+      <button class="org01-btn is-secondary" id="org01-prev" type="button">&larr; Back</button>
+      <span class="org01-progress"><strong id="org01-idx">1</strong> of <strong id="org01-total">8</strong></span>
+      <button class="org01-btn is-primary" id="org01-next" type="button">Next &rarr;</button>
+    </div>
+  </div>
+
+  <div class="org01-complete-wrap">
+    <button class="org01-complete-btn" id="org01-complete-btn" type="button" disabled onclick="org01ReportCompletion()">Mark module complete</button>
+    <div class="org01-banner" id="org01-banner" role="status" aria-live="polite"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  try {
+    var root = document.getElementById('custom-container-org-01');
+    if (!root) { console.error('[org01] container missing'); return; }
+
+    var SCENES = [
+      { setting: '1:1 review', a: { name: 'Manager',     line: 'What\u2019s your job now?' },                b: { name: 'Direct report', line: 'Less drafting. More catching. The AI can write the doc \u2014 it can\u2019t tell when the doc is wrong about our product.' } },
+      { setting: 'Coffee, before all-hands', a: { name: 'Senior IC', line: 'I think they\u2019re going to halve the team once AI lands.' }, b: { name: 'Peer',           line: 'Headcount\u2019s the boring story. The interesting one is who ends up in the new org chart.' } },
+      { setting: 'Skip-level calibration', a: { name: 'Skip-level',  line: 'How do I evaluate someone whose draft-an-hour-of-writing now takes an afternoon?' }, b: { name: 'Manager',        line: 'Watch what they do when the AI is confidently wrong. The catchers are the keepers.' } },
+      { setting: 'Onboarding, week 1',     a: { name: 'Senior',      line: 'When I started, I learned the codebase. What do you learn?' },                          b: { name: 'New joiner',     line: 'I learn to vet the codebase the AI wrote for me.' } },
+      { setting: 'Postmortem',             a: { name: 'Product',     line: 'Whose call is it when the AI\u2019s three drafts all suck?' },                                b: { name: 'Engineering',   line: 'Whoever can prompt better drafts gets to call it.' } },
+      { setting: 'Debrief after a missed deadline', a: { name: 'Manager', line: 'I told you to ship it. I didn\u2019t say \u201cship whatever the AI spat out.\u201d' },         b: { name: 'Direct report', line: 'I shipped what was ready. The AI wasn\u2019t ready.' } },
+      { setting: 'Slack thread, late Friday', a: { name: 'Colleague A', line: 'We\u2019re three on this project now. Me, you, and Claude.' },                              b: { name: 'Colleague B',  line: 'Ha \u2014 Claude doesn\u2019t come to retros.' } },
+      { setting: '1:1 with the CTO, after the reorg', a: { name: 'CTO',  line: 'What\u2019s different now?' },                                                       b: { name: 'Engineering lead', line: 'The AI is the bottleneck. I\u2019m the pressure relief valve.' } }
+    ];
+
+    var idx = 0;
+    var total = SCENES.length;
+    var seen = new Set();
+    var stage = root.querySelector('#org01-stage');
+    var row = root.querySelector('#org01-bubble-row');
+    var settingText = root.querySelector('#org01-setting-text');
+    var idxEl = root.querySelector('#org01-idx');
+    var totalEl = root.querySelector('#org01-total');
+    var prevBtn = root.querySelector('#org01-prev');
+    var nextBtn = root.querySelector('#org01-next');
+    var completeBtn = root.querySelector('#org01-complete-btn');
+    var banner = root.querySelector('#org01-banner');
+    var speakerA = root.querySelector('#org01-speaker-a');
+    var lineA = root.querySelector('#org01-line-a');
+    var bubbleA = root.querySelector('#org01-bubble-a');
+    var speakerB = root.querySelector('#org01-speaker-b');
+    var lineB = root.querySelector('#org01-line-b');
+    var bubbleB = root.querySelector('#org01-bubble-b');
+
+    totalEl.textContent = String(total);
+
+    function renderScene(i, animate) {
+      var s = SCENES[i];
+      settingText.textContent = s.setting;
+      speakerA.textContent = s.a.name;
+      lineA.textContent = s.a.line;
+      speakerB.textContent = s.b.name;
+      lineB.textContent = s.b.line;
+      idxEl.textContent = String(i + 1);
+      prevBtn.disabled = (i === 0);
+      nextBtn.disabled = false;
+      nextBtn.textContent = (i === total - 1) ? 'Restart \u21BB' : 'Next \u2192';
+
+      if (animate) {
+        stage.classList.remove('is-entered');
+        // force reflow so the animation re-triggers
+        void row.offsetWidth;
+        stage.classList.add('is-entered');
+      } else {
+        stage.classList.add('is-entered');
+      }
+
+      seen.add(i);
+      if (seen.size >= total) {
+        completeBtn.disabled = false;
+      }
+    }
+
+    prevBtn.addEventListener('click', function(){
+      if (idx > 0) { idx--; renderScene(idx, true); }
+    });
+    nextBtn.addEventListener('click', function(){
+      idx = (idx + 1) % total;
+      renderScene(idx, true);
+    });
+
+    // Initial render
+    renderScene(0, false);
+
+    // Completion (single-fire guard + dedup). Attached to window so the inline
+    // onclick="org01ReportCompletion()" on the button can resolve it.
+    window.org01ReportCompletion = function(){
+      try {
+        var b = document.getElementById('org01-complete-btn');
+        if (!b || b.getAttribute('data-completed') === 'true') return;
+        b.setAttribute('data-completed', 'true');
+        b.disabled = true;
+        b.textContent = 'Module completed';
+        banner.textContent = 'Completion recorded for your account. You can close this tab.';
+        banner.classList.add('is-shown');
+        window.parent.postMessage({ type: 'complete' }, '*');
+      } catch (e) { console.error('[org01] completion post failed', e); }
+    };
+  } catch (err) { console.error('[org01]', err); }
+})();
+</script>
+</body>
+</html>
