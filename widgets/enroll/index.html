@@ -71,6 +71,48 @@
   .enr01-sent-line { font-size: 15px; color: rgba(15,35,71,0.78); margin: 0 0 6px; line-height: 1.5; }
   .enr01-sent-line code { background: rgba(27,58,107,0.08); padding: 2px 6px; border-radius: 3px; color: #1B3A6B; font-size: 13px; }
   .enr01-sent-foot { font-size: 13px; color: rgba(15,35,71,0.55); margin-top: 14px; line-height: 1.5; }
+  .enr01-direct-link-wrap {
+    display: flex; align-items: stretch; gap: 8px;
+    margin: 12px 0 4px;
+  }
+  .enr01-direct-link {
+    flex: 1; min-width: 0;
+    display: flex; align-items: center;
+    padding: 12px 14px;
+    background: rgba(27,58,107,0.05);
+    border: 1px solid rgba(27,58,107,0.22);
+    border-radius: 4px;
+    font-family: 'Menlo', 'Consolas', monospace;
+    font-size: 12px; line-height: 1.4;
+    color: #1B3A6B;
+    text-decoration: none;
+    word-break: break-all;
+    transition: background-color 0.18s ease, border-color 0.18s ease;
+  }
+  .enr01-direct-link:hover { background: rgba(27,58,107,0.10); border-color: #1B3A6B; }
+  .enr01-direct-link:active { background: rgba(27,58,107,0.18); }
+  .enr01-direct-link-link-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .enr01-copy-btn {
+    flex: 0 0 auto;
+    font-size: 13px; font-family: 'Urbanist', sans-serif; font-weight: 600;
+    padding: 10px 16px;
+    background-color: #1B3A6B; color: #FFFFFF;
+    border: 1px solid #1B3A6B; border-radius: 4px; cursor: pointer;
+    transition: background-color 0.18s ease;
+  }
+  .enr01-copy-btn:hover { background-color: #CC2229; border-color: #CC2229; }
+  .enr01-copy-btn.is-copied {
+    background-color: #1B3A6B; border-color: #1B3A6B; opacity: 1;
+  }
+  .enr01-copy-btn:focus-visible { outline: 2px solid #CC2229; outline-offset: 2px; }
+  .enr01-queued-note {
+    font-size: 12px; color: rgba(15,35,71,0.55);
+    margin: 8px 0 0; line-height: 1.5;
+  }
+  .enr01-queued-note code {
+    background: rgba(27,58,107,0.08); padding: 1px 5px; border-radius: 3px;
+    color: #1B3A6B; font-size: 11px;
+  }
   .enr01-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
   .enr01-btn {
     font-size: 13px; font-family: 'Urbanist', sans-serif; font-weight: 600;
@@ -123,22 +165,26 @@
     </form>
   </div>
 
-  <!-- Phase C: Check your inbox -->
+  <!-- Phase C: Your link is ready -->
   <div class="enr01-sent" id="enr01-sent-phase" aria-live="polite">
     <p class="enr01-eyebrow">You're enrolled</p>
-    <h2 class="enr01-title">Check your inbox</h2>
-    <p class="enr01-sub">We just emailed you a unique access link. Click it to start the module.</p>
+    <h2 class="enr01-title">Your access link is ready</h2>
+    <p class="enr01-sub">Use the link below to start <span id="enr01-sent-module">the module</span> now. We've also queued an email to <code id="enr01-sent-email">your email</code> for your records &mdash; it goes out from our Gmail shortly.</p>
 
     <div class="enr01-sent-card">
-      <div class="enr01-sent-check" aria-hidden="true">&#9993;&#65039;</div>
-      <h3 class="enr01-sent-title">We sent it to <span id="enr01-sent-email">you</span></h3>
-      <p class="enr01-sent-line">Look for an email from <strong>Exploring AI in OD</strong> with the subject <code>Your AIINOD eLearning link</code>.</p>
-      <p class="enr01-sent-line">The link is valid for <strong>7 days</strong>. It&rsquo;s tied to <code id="enr01-sent-email-2">your email</code> &mdash; don&rsquo;t share it.</p>
-      <p class="enr01-sent-foot">Didn&rsquo;t arrive? Check spam, then try resending. Still nothing after 5 minutes? Try a different address.</p>
+      <div class="enr01-sent-check" aria-hidden="true">&#9989;</div>
+      <h3 class="enr01-sent-title">Open <span id="enr01-sent-module-2">your module</span></h3>
+      <p class="enr01-sent-line">Device-bound &middot; valid 7 days &middot; don&rsquo;t share it.</p>
+      <div class="enr01-direct-link-wrap">
+        <a class="enr01-direct-link" id="enr01-direct-link" href="#" target="_blank" rel="noopener noreferrer">
+          <span class="enr01-direct-link-link-text">Loading your link&hellip;</span>
+        </a>
+        <button class="enr01-copy-btn" id="enr01-copy-link" type="button">Copy</button>
+      </div>
+      <p class="enr01-queued-note">Email queued to <code id="enr01-sent-email-2">your email</code>. Say <strong>&ldquo;send pending emails&rdquo;</strong> in chat to flush immediately, or just use the link above.</p>
     </div>
 
     <div class="enr01-actions">
-      <button class="enr01-btn is-primary" id="enr01-resend" type="button">Resend the link</button>
       <button class="enr01-btn is-secondary" id="enr01-reenroll" type="button">Use a different email</button>
     </div>
 
@@ -187,7 +233,11 @@
     var errEmail = root.querySelector('#enr01-err-email');
     var sentEmail = root.querySelector('#enr01-sent-email');
     var sentEmail2 = root.querySelector('#enr01-sent-email-2');
-    var resendBtn = root.querySelector('#enr01-resend');
+    var sentModule = root.querySelector('#enr01-sent-module');
+    var sentModule2 = root.querySelector('#enr01-sent-module-2');
+    var directLink = root.querySelector('#enr01-direct-link');
+    var directLinkText = root.querySelector('.enr01-direct-link-link-text');
+    var copyBtn = root.querySelector('#enr01-copy-link');
     var reenrollBtn = root.querySelector('#enr01-reenroll');
     var sentBanner = root.querySelector('#enr01-sent-banner');
 
@@ -222,11 +272,18 @@
       }
     }
 
-    function showInbox(name, email){
+    function showInbox(name, email, token){
       phaseA.style.display = 'none';
       phaseC.classList.add('is-active');
       sentEmail.textContent = email;
       sentEmail2.textContent = email;
+      if (sentModule) sentModule.textContent = name;
+      if (sentModule2) sentModule2.textContent = name;
+      if (token) {
+        var link = 'https://jhlburke-code.github.io/eLearning/widgets/access/?token=' + token;
+        if (directLink) directLink.setAttribute('href', link);
+        if (directLinkText) directLinkText.textContent = link;
+      }
       // If you happen to be embedded in a Rise/Notion container, propagate completion.
       try { window.enr01ReportCompletion(); } catch (e) {}
     }
@@ -304,15 +361,23 @@
           // 201: fresh. 409: already enrolled. Both → reveal inbox UI.
           if (res.ok || res.status === 409) {
             lastName = name; lastEmail = email;
-            // Email a unique link via Edge Function.
+            // Queue a unique link via Edge Function (the agent sends via the
+            // Gmail MCP on its next conversation turn).
             return callSendLink(name, email).then(function(r2){
               submit.disabled = false;
               submit.innerHTML = prevLabel;
               if (r2.ok) {
-                showInbox(name, email);
+                var tokenMatch = r2.text && r2.text.match(/"token"\s*:\s*"([^"]+)"/);
+                var token = tokenMatch ? tokenMatch[1] : null;
+                showInbox(name, email, token);
                 return;
               }
-              throw new Error('send_link HTTP ' + r2.status + (r2.text ? ': ' + r2.text.slice(0,200) : ''));
+              // Even on EF failure, show the success card with whatever we got
+              showInbox(name, email, null);
+              if (r2.text) {
+                setBanner('Submitted, but email queue had an issue: ' + r2.text.slice(0, 200), 'error');
+              }
+              return;
             });
           }
           submit.disabled = false;
@@ -326,6 +391,40 @@
           submit.innerHTML = prevLabel;
           setBanner('Could not enroll right now. ' + (err && err.message ? err.message : 'Please try again.'), 'error');
         });
+    }
+
+    function handleCopyLink(){
+      if (!directLink) return;
+      var link = directLink.getAttribute('href');
+      if (!link || link === '#') return;
+      var done = function(){
+        var prev = copyBtn.textContent;
+        copyBtn.textContent = 'Copied';
+        copyBtn.classList.add('is-copied');
+        setTimeout(function(){ copyBtn.textContent = prev; copyBtn.classList.remove('is-copied'); }, 1500);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(link).then(done).catch(function(){
+          // Fallback: select the link text
+          var range = document.createRange();
+          range.selectNode(directLinkText);
+          var sel = window.getSelection();
+          sel.removeAllRanges();
+          sel.addRange(range);
+          try { document.execCommand('copy'); done(); } catch(_) {}
+        });
+      } else {
+        // Old browsers: select the link text
+        try {
+          var range = document.createRange();
+          range.selectNode(directLinkText);
+          var sel = window.getSelection();
+          sel.removeAllRanges();
+          sel.addRange(range);
+          document.execCommand('copy');
+          done();
+        } catch(_) {}
+      }
     }
 
     function handleResend(){
@@ -350,7 +449,7 @@
     }
 
     form.addEventListener('submit', handleSubmit);
-    if (resendBtn) resendBtn.addEventListener('click', handleResend);
+    if (copyBtn) copyBtn.addEventListener('click', handleCopyLink);
     if (reenrollBtn) reenrollBtn.addEventListener('click', showFormAgain);
   } catch (err) {
     console.error('[enr01]', err);
