@@ -156,6 +156,10 @@
     var SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF4d2lwcWx5a3lzbnh1ZG5lanZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ0ODg2NTcsImV4cCI6MjEwMDA2NDY1N30.uTgP-OfI5NtknLCw_LjvXY3tTKNfKc83DJcFRrvwgb8';
     // Default module for the canonical use. Override by appending ?module=<slug>
     // to the widget URL, e.g. ?module=ai-team-transformation/v1
+    var MODULE_LABELS = {
+      'tabbed-content/v2': 'Module 01 · Foundations',
+      'ai-team-transformation/v1': 'AI Team Transformation'
+    };
     function getModuleSlug() {
       try {
         var u = new URL(window.location.href);
@@ -164,7 +168,12 @@
       } catch (_) {}
       return 'tabbed-content/v2';
     }
+    function getModuleLabel() {
+      var slug = getModuleSlug();
+      return MODULE_LABELS[slug] || slug;
+    }
     var MODULE_SLUG = getModuleSlug();
+    var MODULE_LABEL = getModuleLabel();
     var SEND_LINK_URL = 'https://axwipqlykysnxudnejvi.supabase.co/functions/v1/enroll_send_link';
 
     var form = root.querySelector('#enr01-form');
@@ -247,7 +256,12 @@
       return fetch(SEND_LINK_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email, full_name: name, module: MODULE_SLUG })
+        body: JSON.stringify({
+          email: email,
+          full_name: name,
+          module: MODULE_SLUG,
+          module_label: MODULE_LABEL
+        })
       }).then(function(res){
         return res.text().then(function(text){
           return { status: res.status, ok: res.ok, text: text };
