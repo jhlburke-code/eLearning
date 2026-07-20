@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>eLearning &middot; AI with vs without a harness</title>
+<link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<style>
+  body { margin: 0; padding: 0 0 40px 0; background-color: transparent; }
+  #custom-container-harness-01,
+  #custom-container-harness-01 * { box-sizing: border-box; }
+  #custom-container-harness-01 {
+    font-family: 'Urbanist', sans-serif;
+    background-color: #F4F7FA;
+    max-width: 980px;
+    width: calc(100% - 32px);
+    margin: 24px auto;
+    border-radius: 8px;
+    padding: 28px 32px;
+    color: #0F2347;
+    border: 1px solid #0F2347;
+  }
+
+  /* Header */
+  .har01-eyebrow { font-size: 13px; font-weight: 600; letter-spacing: 0.28em; text-transform: uppercase; color: #CC2229; margin: 0 0 8px; }
+  .har01-title { font-family: 'Urbanist', sans-serif; font-weight: 800; font-size: 30px; line-height: 1.12; color: #1B3A6B; margin: 0 0 6px; }
+  .har01-sub { font-size: 14px; line-height: 1.55; color: rgba(15,35,71,0.72); margin: 0 0 22px; }
+
+  /* Stage */
+  .har01-stage {
+    background: #FFFFFF;
+    border-radius: 8px;
+    padding: 24px 26px 18px;
+    border: 1px solid rgba(15,35,71,0.10);
+    position: relative;
+    overflow: hidden;
+  }
+  .har01-scenario-title {
+    font-family: 'Urbanist', sans-serif; font-weight: 700;
+    font-size: 19px; color: #1B3A6B;
+    margin: 0 0 16px;
+  }
+  .har01-scenario-title::before {
+    content: 'SCENARIO \2192  '; font-weight: 600; letter-spacing: 0.16em;
+    color: rgba(15,35,71,0.45);
+  }
+
+  .har01-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin: 0 0 18px;
+  }
+  .har01-col {
+    border-radius: 8px;
+    padding: 14px 16px 16px;
+    min-height: 160px;
+    opacity: 0;
+    transform: translateX(0);
+    transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.35s ease;
+  }
+  .har01-col.raw {
+    background: rgba(15,35,71,0.04);
+    border: 1px solid rgba(15,35,71,0.10);
+  }
+  .har01-col.harness {
+    background: rgba(27,58,107,0.06);
+    border: 1px solid rgba(27,58,107,0.22);
+  }
+  .har01-stage.is-entered .har01-col.raw {
+    opacity: 1; transform: translateX(-12px); transition-delay: 0.05s;
+  }
+  .har01-stage.is-entered .har01-col.harness {
+    opacity: 1; transform: translateX(12px); transition-delay: 0.18s;
+  }
+  .har01-stage.is-entered .har01-col.harness {
+    /* on settle, the slight offset reads as 'harness goes a step further'; after settle we center on tab advance */
+  }
+
+  .har01-col-head {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 10px;
+  }
+  .har01-col-icon {
+    width: 30px; height: 30px;
+    border-radius: 6px;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: #FFFFFF; color: #0F2347;
+    flex-shrink: 0;
+  }
+  .har01-col.raw .har01-col-icon { color: rgba(15,35,71,0.55); }
+  .har01-col.harness .har01-col-icon { background: #1B3A6B; color: #FFFFFF; }
+  .har01-col-icon svg { width: 18px; height: 18px; }
+
+  .har01-col-label {
+    font-family: 'Urbanist', sans-serif; font-weight: 700;
+    font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase;
+    color: rgba(15,35,71,0.55);
+  }
+  .har01-col.harness .har01-col-label { color: #1B3A6B; }
+
+  .har01-col-output {
+    font-size: 14px; line-height: 1.55;
+    color: #0F2347;
+    margin: 0;
+    font-family: 'Menlo', 'Consolas', monospace;
+    font-size: 13px;
+  }
+  .har01-col-output::before {
+    content: '> '; color: rgba(15,35,71,0.35);
+  }
+
+  /* Lesson callout (single, full-width) */
+  .har01-lesson {
+    background: rgba(27,58,107,0.05);
+    border-left: 3px solid #1B3A6B;
+    padding: 12px 16px;
+    border-radius: 0 6px 6px 0;
+    margin: 0 0 18px;
+    font-size: 14px; line-height: 1.5;
+    color: #1B3A6B;
+    opacity: 0;
+    transform: translateX(-12px);
+    transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) 0.3s, opacity 0.35s ease 0.3s;
+  }
+  .har01-stage.is-entered .har01-lesson { opacity: 1; transform: translateX(0); }
+
+  /* Controls */
+  .har01-controls {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px;
+  }
+  .har01-progress {
+    font-size: 13px; color: rgba(15,35,71,0.62);
+    font-variant-numeric: tabular-nums;
+  }
+  .har01-progress strong { color: #1B3A6B; font-weight: 700; }
+  .har01-btn {
+    font-family: 'Urbanist', sans-serif; font-weight: 600;
+    padding: 10px 18px; border-radius: 4px; cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+  }
+  .har01-btn.is-primary { background: #1B3A6B; color: #FFFFFF; border: 1px solid #1B3A6B; }
+  .har01-btn.is-primary:hover { background: #CC2229; border-color: #CC2229; }
+  .har01-btn.is-secondary {
+    background: transparent; color: #0F2347; border: 1px solid rgba(15,35,71,0.32);
+  }
+  .har01-btn.is-secondary:hover { background: rgba(15,35,71,0.06); border-color: #1B3A6B; }
+  .har01-btn:focus-visible { outline: 2px solid #CC2229; outline-offset: 2px; }
+  .har01-btn[disabled] { opacity: 0.4; cursor: not-allowed; }
+
+  /* Completion */
+  .har01-complete-wrap { margin-top: 18px; }
+  .har01-complete-btn {
+    background-color: #1B3A6B; color: #FFFFFF; border: none;
+    padding: 12px 24px; font-size: 14px; cursor: pointer;
+    font-family: 'Urbanist', sans-serif; font-weight: 600;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+  }
+  .har01-complete-btn:hover { background-color: #CC2229; }
+  .har01-complete-btn:focus-visible { outline: 2px solid #CC2229; outline-offset: 2px; }
+  .har01-complete-btn[disabled] { opacity: 0.45; cursor: not-allowed; }
+  .har01-complete-btn[data-completed="true"] {
+    background-color: #1B3A6B; opacity: 1; cursor: default; pointer-events: none;
+  }
+  .har01-complete-btn[data-completed="true"]::before {
+    content: "\2713"; margin-right: 8px; font-weight: 800;
+  }
+  .har01-banner {
+    display: none;
+    margin-top: 12px; padding: 10px 14px;
+    background: rgba(27,58,107,0.08); color: #1B3A6B;
+    border: 1px solid rgba(27,58,107,0.22); border-radius: 4px;
+    font-size: 14px; line-height: 1.4;
+  }
+  .har01-banner.is-shown { display: block; }
+
+  @media (max-width: 768px) {
+    #custom-container-harness-01 { padding: 22px 16px; }
+    .har01-title { font-size: 22px; }
+    .har01-cols { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div id="custom-container-harness-01" role="region" aria-label="AI with vs without a harness">
+  <p class="har01-eyebrow">eLearning &middot; Side-by-side</p>
+  <h2 class="har01-title">The harness isn&rsquo;t the model &mdash; it&rsquo;s everything else</h2>
+  <p class="har01-sub">Same underlying LLM, very different behaviour. Click through six scenarios to see what wrapping the model in a harness actually changes.</p>
+
+  <div class="har01-stage" id="har01-stage">
+    <h3 class="har01-scenario-title" id="har01-scenario-title">&mdash;</h3>
+    <div class="har01-cols">
+      <div class="har01-col raw" id="har01-col-raw">
+        <div class="har01-col-head">
+          <span class="har01-col-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="9"/>
+              <path d="M12 7 V12 L15 14"/>
+            </svg>
+          </span>
+          <span class="har01-col-label">Raw LLM</span>
+        </div>
+        <p class="har01-col-output" id="har01-output-raw"></p>
+      </div>
+      <div class="har01-col harness" id="har01-col-harness">
+        <div class="har01-col-head">
+          <span class="har01-col-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M12 3 V5 M12 19 V21 M3 12 H5 M19 12 H21 M5.6 5.6 L7 7 M17 17 L18.4 18.4 M5.6 18.4 L7 17 M17 7 L18.4 5.6"/>
+            </svg>
+          </span>
+          <span class="har01-col-label">AI with harness</span>
+        </div>
+        <p class="har01-col-output" id="har01-output-harness"></p>
+      </div>
+    </div>
+    <p class="har01-lesson" id="har01-lesson"></p>
+    <div class="har01-controls">
+      <button class="har01-btn is-secondary" id="har01-prev" type="button">&larr; Back</button>
+      <span class="har01-progress"><strong id="har01-idx">1</strong> of <strong id="har01-total">6</strong></span>
+      <button class="har01-btn is-primary" id="har01-next" type="button">Next &rarr;</button>
+    </div>
+  </div>
+
+  <div class="har01-complete-wrap">
+    <button class="har01-complete-btn" id="har01-complete-btn" type="button" disabled onclick="har01ReportCompletion()">Mark module complete</button>
+    <div class="har01-banner" id="har01-banner" role="status" aria-live="polite"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  try {
+    var root = document.getElementById('custom-container-harness-01');
+    if (!root) { console.error('[har01] container missing'); return; }
+
+    var SCENES = [
+      { title: 'What time is it in Tokyo?',
+        raw: "I can\u2019t reliably tell you the current time &mdash; my training data has a cutoff and I don\u2019t have a clock. Please check a real source.",
+        harness: "It\u2019s 14:47 JST on Monday, 20 July 2026. (called a time API under the hood)",
+        lesson: "A small tool call turns \u2018I don\u2019t know\u2019 into a precise answer." },
+      { title: 'Schedule a meeting with Sarah tomorrow at 3pm',
+        raw: "I don\u2019t have access to your calendar. To schedule a meeting, you could write to Sarah: \u2018Hi, are you free tomorrow at 3pm?\u2019",
+        harness: "Done. Event \u2018Sync with Sarah\u2019 created for Tue 21 Jul, 15:00 &mdash; invite sent. Sarah hasn\u2019t accepted yet. (called calendar API)",
+        lesson: "The harness turns the LLM from something that describes the world into something that can act on it." },
+      { title: 'Summarise this PDF',
+        raw: "I can\u2019t open files or PDFs. You\u2019ll need to copy the text into our chat and I\u2019ll read it from there.",
+        harness: "Sure &mdash; pulled the 12-page report. Three takeaways: (1) Q3 revenue up 8% YoY, (2) churn flat at 4.2%, (3) the Asia region is the growth lever.",
+        lesson: "Every tool the harness adds is a small door into the model\u2019s ignorance." },
+      { title: 'Run a SQL query against our warehouse',
+        raw: "I can\u2019t reach your warehouse. You\u2019d want a query like: SELECT * FROM revenue WHERE quarter = \u2018Q4\u2019 \u2026",
+        harness: "Q4 topline: $1.2M, up 8% QoQ. The new-orders cohort drove 71% of the lift. (generated the SQL, ran it in a sandbox, returned the rows, summarised)",
+        lesson: "Tools let the harness ask the world \u2014 and then verify what came back." },
+      { title: 'Process this CSV &mdash; save cleaned rows to a new file',
+        raw: "Here\u2019s a Python snippet you can paste into your IDE. The output will appear wherever you run it.",
+        harness: "Saved output.csv with 1,247 cleaned rows. Detected and fixed 12 rows with malformed dates. (wrote the script, executed it, sanity-checked the result, saved the file)",
+        lesson: "Tools aren\u2019t just for reading \u2014 they\u2019re for closing the loop." },
+      { title: 'Marketing copy for our new product launch',
+        raw: "Sure! Here are some options: \u2018Introducing our latest innovation\u2026\u2019 \u2018We\u2019re excited to announce\u2026\u2019 (generic, no brand voice, no docs consulted)",
+        harness: "Pulled your May 2025 brand guidelines and the launch brief. Three variants that match your tone. One question first: should this reference the Q4 press release, or stay teaser-level?",
+        lesson: "The harness turns the model from a one-shot writer into a colleague who reads first, asks before doing, and ships in your voice." }
+    ];
+
+    var idx = 0;
+    var total = SCENES.length;
+    var seen = new Set();
+    var stage = root.querySelector('#har01-stage');
+    var titleEl = root.querySelector('#har01-scenario-title');
+    var rawEl = root.querySelector('#har01-output-raw');
+    var harnessEl = root.querySelector('#har01-output-harness');
+    var lessonEl = root.querySelector('#har01-lesson');
+    var idxEl = root.querySelector('#har01-idx');
+    var totalEl = root.querySelector('#har01-total');
+    var prevBtn = root.querySelector('#har01-prev');
+    var nextBtn = root.querySelector('#har01-next');
+    var completeBtn = root.querySelector('#har01-complete-btn');
+    var banner = root.querySelector('#har01-banner');
+
+    totalEl.textContent = String(total);
+
+    function renderScene(i, animate) {
+      var s = SCENES[i];
+      titleEl.textContent = s.title;
+      rawEl.textContent = s.raw;
+      harnessEl.textContent = s.harness;
+      lessonEl.textContent = s.lesson;
+      idxEl.textContent = String(i + 1);
+      prevBtn.disabled = (i === 0);
+      nextBtn.textContent = (i === total - 1) ? 'Restart \u21BB' : 'Next \u2192';
+
+      if (animate) {
+        stage.classList.remove('is-entered');
+        void stage.offsetWidth;
+        stage.classList.add('is-entered');
+      } else {
+        stage.classList.add('is-entered');
+      }
+
+      seen.add(i);
+      if (seen.size >= total) completeBtn.disabled = false;
+    }
+
+    prevBtn.addEventListener('click', function(){
+      if (idx > 0) { idx--; renderScene(idx, true); }
+    });
+    nextBtn.addEventListener('click', function(){
+      idx = (idx + 1) % total;
+      renderScene(idx, true);
+    });
+
+    renderScene(0, false);
+
+    // Completion (single-fire guard + dedup). Attached to window so the
+    // inline onclick on the button can resolve the function name.
+    window.har01ReportCompletion = function(){
+      try {
+        var b = document.getElementById('har01-complete-btn');
+        if (!b || b.getAttribute('data-completed') === 'true') return;
+        b.setAttribute('data-completed', 'true');
+        b.disabled = true;
+        b.textContent = 'Module completed';
+        banner.textContent = 'Completion recorded for your account. You can close this tab.';
+        banner.classList.add('is-shown');
+        window.parent.postMessage({ type: 'complete' }, '*');
+      } catch (e) { console.error('[har01] completion post failed', e); }
+    };
+  } catch (err) { console.error('[har01]', err); }
+})();
+</script>
+</body>
+</html>
