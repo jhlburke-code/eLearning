@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How AI Thinks — Cynex</title>
+<link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* ────────────────────────────────────────────────────────────
+     How AI Thinks — Cynex eLearning widget
+     6 stages, animated reveal, brand-aligned (Navy / Red / Gold).
+     ──────────────────────────────────────────────────────────── */
+
+  body { margin: 0; padding: 0 0 40px 0; background-color: transparent; }
+  #custom-container-hait-01, #custom-container-hait-01 * { box-sizing: border-box; }
+
+  #custom-container-hait-01 {
+    font-family: 'Urbanist', sans-serif;
+    background:
+      radial-gradient(circle at 20% 10%, rgba(204,34,41,0.06), transparent 50%),
+      radial-gradient(circle at 80% 90%, rgba(184,138,58,0.06), transparent 55%),
+      #F4F7FA;
+    color: #0F2347;
+    max-width: 880px;
+    width: calc(100% - 32px);
+    margin: 24px auto;
+    border-radius: 12px;
+    padding: 36px 32px 32px;
+    border: 1px solid #0F2347;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* ── Animated neural-net backdrop ── */
+  #hait-net {
+    position: absolute; inset: 0;
+    opacity: 0.18;
+    pointer-events: none;
+    z-index: 0;
+  }
+  #hait-net circle { fill: #1B3A6B; }
+  #hait-net .hait-pulse { fill: #CC2229; opacity: 0.85; }
+  #hait-net line { stroke: #1B3A6B; stroke-width: 1; }
+  #hait-net .hait-line-hot { stroke: #CC2229; stroke-width: 1.4; }
+
+  /* ── Header ── */
+  .hait-header { position: relative; z-index: 1; text-align: center; margin-bottom: 8px; }
+  .hait-eyebrow {
+    display: inline-block;
+    font-size: 11px; font-weight: 700; letter-spacing: 1.6px;
+    text-transform: uppercase;
+    color: #CC2229;
+    background: rgba(204,34,41,0.08);
+    padding: 5px 12px; border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  .hait-header h2 {
+    color: #1B3A6B; font-size: 28px; font-weight: 800;
+    margin: 0 0 6px; letter-spacing: -0.3px;
+  }
+  .hait-header p {
+    color: #0F2347; opacity: 0.75; font-size: 14px;
+    margin: 0; line-height: 1.45;
+  }
+
+  /* ── Stage badge ── */
+  .hait-stage-row {
+    display: flex; align-items: center; justify-content: center;
+    gap: 12px; margin: 24px 0 16px; position: relative; z-index: 1;
+  }
+  .hait-stage-counter {
+    font-size: 12px; font-weight: 700; letter-spacing: 1.4px;
+    text-transform: uppercase;
+    color: #0F2347; opacity: 0.7;
+  }
+  .hait-stage-counter strong {
+    color: #CC2229; font-size: 14px; font-weight: 800;
+    font-variant-numeric: tabular-nums;
+  }
+  .hait-progress {
+    flex: 1; max-width: 280px; height: 4px;
+    background: rgba(15,35,71,0.08);
+    border-radius: 999px; overflow: hidden;
+  }
+  .hait-progress-bar {
+    height: 100%; width: 0%;
+    background: linear-gradient(90deg, #CC2229 0%, #B88A3A 100%);
+    border-radius: 999px;
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* ── Stage card ── */
+  .hait-stage {
+    position: relative; z-index: 1;
+    background: #FFFFFF;
+    border: 1px solid rgba(15,35,71,0.1);
+    border-radius: 12px;
+    padding: 32px 28px;
+    min-height: 320px;
+    box-shadow: 0 4px 20px rgba(15,35,71,0.05);
+    transition: opacity 0.45s ease, transform 0.45s ease;
+  }
+  .hait-stage.is-entering {
+    opacity: 0; transform: translateY(20px);
+  }
+  .hait-stage-icon {
+    width: 56px; height: 56px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #0F2347 0%, #1B3A6B 100%);
+    color: #FFFFFF;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 18px;
+    box-shadow: 0 6px 16px rgba(15,35,71,0.2);
+  }
+  .hait-stage-icon svg { width: 30px; height: 30px; }
+  .hait-stage h3 {
+    font-size: 22px; font-weight: 700; color: #0F2347;
+    margin: 0 0 8px; letter-spacing: -0.2px;
+  }
+  .hait-stage-tag {
+    display: inline-block;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: #B88A3A;
+    margin-bottom: 10px;
+  }
+  .hait-stage p {
+    font-size: 15px; line-height: 1.55; color: #0F2347;
+    margin: 0 0 12px;
+  }
+  .hait-stage p:last-child { margin-bottom: 0; }
+  .hait-quote {
+    background: rgba(204,34,41,0.05);
+    border-left: 3px solid #CC2229;
+    padding: 14px 16px; border-radius: 0 6px 6px 0;
+    margin: 16px 0;
+    font-style: italic; color: #0F2347;
+  }
+  .hait-pill-row {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    margin-top: 16px;
+  }
+  .hait-pill {
+    font-size: 11px; font-weight: 600;
+    background: rgba(15,35,71,0.06);
+    color: #0F2347;
+    padding: 4px 10px; border-radius: 999px;
+  }
+
+  /* ── Footer / nav ── */
+  .hait-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; margin-top: 24px; position: relative; z-index: 1;
+  }
+  .hait-btn {
+    font-family: 'Urbanist', sans-serif;
+    font-size: 14px; font-weight: 700;
+    padding: 12px 22px; border-radius: 8px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease, opacity 0.2s ease;
+  }
+  .hait-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .hait-btn-secondary {
+    background: transparent; color: #0F2347; border-color: #0F2347;
+  }
+  .hait-btn-secondary:not(:disabled):hover {
+    background: #0F2347; color: #FFFFFF;
+  }
+  .hait-btn-primary {
+    background: #CC2229; color: #FFFFFF;
+  }
+  .hait-btn-primary:not(:disabled):hover {
+    background: #B11D24;
+  }
+  .hait-btn-complete {
+    background: linear-gradient(135deg, #1B5E20 0%, #2E7D32 100%);
+    color: #FFFFFF;
+  }
+  .hait-btn-complete:not(:disabled):hover {
+    background: linear-gradient(135deg, #2E7D32 0%, #1B5E20 100%);
+  }
+
+  /* ── Mobile ── */
+  @media (max-width: 640px) {
+    #custom-container-hait-01 { padding: 24px 18px; }
+    .hait-stage { padding: 22px 18px; }
+    .hait-header h2 { font-size: 22px; }
+  }
+
+  /* ── Banner ── */
+  .hait-banner {
+    margin-top: 16px; padding: 12px 16px;
+    border-radius: 8px;
+    background: #E8F5E9; border: 1px solid #1B5E20;
+    color: #1B5E20; font-size: 14px; font-weight: 600;
+    text-align: center;
+    opacity: 0; max-height: 0; overflow: hidden;
+    transition: opacity 0.3s ease, max-height 0.3s ease, margin-top 0.3s ease;
+  }
+  .hait-banner.is-shown {
+    opacity: 1; max-height: 80px;
+  }
+</style>
+</head>
+<body>
+
+<div id="custom-container-hait-01">
+
+  <!-- Animated neural-net background -->
+  <svg id="hait-net" viewBox="0 0 880 520" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <!-- nodes -->
+    <g id="hait-nodes"></g>
+    <!-- edges -->
+    <g id="hait-edges"></g>
+    <!-- pulses -->
+    <g id="hait-pulses"></g>
+  </svg>
+
+  <!-- Header -->
+  <div class="hait-header">
+    <span class="hait-eyebrow">Cynex · Module 05</span>
+    <h2>How AI thinks</h2>
+    <p>A 60-second tour of what's actually happening when a model answers you.</p>
+  </div>
+
+  <!-- Progress -->
+  <div class="hait-stage-row">
+    <div class="hait-stage-counter">Stage <strong id="hait-counter">1</strong> / 6</div>
+    <div class="hait-progress"><div class="hait-progress-bar" id="hait-bar"></div></div>
+  </div>
+
+  <!-- Stage container -->
+  <div class="hait-stage" id="hait-stage"></div>
+
+  <!-- Banner -->
+  <div class="hait-banner" id="hait-banner">Completion recorded for your account. You can close this tab.</div>
+
+  <!-- Footer / nav -->
+  <div class="hait-footer">
+    <button class="hait-btn hait-btn-secondary" id="hait-back" disabled>← Back</button>
+    <button class="hait-btn hait-btn-primary" id="hait-next">Next →</button>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  // ── Stage data ──────────────────────────────────────────────
+  const STAGES = [
+    {
+      tag: 'The basic unit',
+      icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><circle cx="4" cy="4" r="2"/><circle cx="20" cy="4" r="2"/><circle cx="4" cy="20" r="2"/><circle cx="20" cy="20" r="2"/><line x1="6" y1="5.5" x2="10" y2="10.5"/><line x1="18" y1="5.5" x2="14" y2="10.5"/><line x1="6" y1="18.5" x2="10" y2="13.5"/><line x1="18" y1="18.5" x2="14" y2="13.5"/></svg>',
+      title: 'It\'s a token machine',
+      body: '<p>An AI doesn\'t read words the way you do. It breaks text into <strong>tokens</strong> — chunks of letters, words, or punctuation — and turns each one into a list of numbers.</p><p>Everything it knows about a token lives in those numbers. No grammar rules, no dictionary, no memory of yesterday.</p>',
+      pills: ['Tokens', 'Embeddings', 'Numbers in, numbers out']
+    },
+    {
+      tag: 'The next guess',
+      icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>',
+      title: 'It predicts, not knows',
+      body: '<p>At every step, the model asks: <em>given all the tokens so far, which token is most likely to come next?</em></p><p>That\'s it. No looking things up, no reasoning engine. A very fast, very well-tuned guesser — trained on a snapshot of the internet.</p>',
+      quote: '"It\'s autocomplete all the way down." — every ML textbook, eventually'
+    },
+    {
+      tag: 'The mirror',
+      icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4"/><path d="M12 18v4"/><path d="M4.93 4.93l2.83 2.83"/><path d="M16.24 16.24l2.83 2.83"/><path d="M2 12h4"/><path d="M18 12h4"/><path d="M4.93 19.07l2.83-2.83"/><path d="M16.24 7.76l2.83-2.83"/><circle cx="12" cy="12" r="4"/></svg>',
+      title: 'It mirrors your prompt',
+      body: '<p>The shape of your question sets the shape of the answer. Vague in → vague out. Specific in → specific out. Show it the format you want and it copies it.</p><p>Bad output is almost always a sign of an underspecified prompt — not a sign the model is "broken".</p>',
+      pills: ['Garbage in, garbage out', 'Few-shot examples', 'Format is a feature']
+    },
+    {
+      tag: 'The illusion',
+      icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>',
+      title: 'Confidence is not truth',
+      body: '<p>The model can be wrong in perfect, fluent prose. It doesn\'t have a feeling of "I\'m not sure" the way you do — it just keeps picking the next likely token.</p><p>So <strong>always verify</strong>: numbers, dates, quotes, names, code that runs anything important. Treat AI output as a confident first draft, never as a source of fact.</p>'
+    },
+    {
+      tag: 'The lever',
+      icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3v18"/><path d="M3 12h18"/></svg>',
+      title: 'Context is the lever',
+      body: '<p>The single biggest factor in output quality is the <strong>context window</strong> — everything you feed it: the prompt, examples, retrieved documents, prior turns, tools.</p><p>Better AI work isn\'t about "being smarter". It\'s about giving the model the right material to draw on, and the right guardrails to stay in scope.</p>',
+      pills: ['Prompt', 'Examples', 'Retrieval', 'Tools']
+    },
+    {
+      tag: 'What it isn\'t',
+      icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>',
+      title: 'It doesn\'t know what it doesn\'t know',
+      body: '<p>There\'s no internal "I\'m out of my depth" alarm. If a topic was thin in training data, the model will often <em>confabulate</em> — fill the gap with plausible-sounding noise.</p><p>That\'s why your job isn\'t to ask it questions. It\'s to <strong>decide what to trust</strong>. The model is your fastest junior; it isn\'t your senior.</p>',
+      quote: 'Use AI to draft. Use your judgment to decide.'
+    }
+  ];
+
+  // ── Neural-net backdrop ─────────────────────────────────────
+  const NODES = [];
+  const EDGES = [];
+  const N = 22;
+  for (let i = 0; i < N; i++) {
+    NODES.push({
+      x: 60 + Math.random() * 760,
+      y: 40 + Math.random() * 440,
+      r: 2 + Math.random() * 2.5,
+      layer: i % 3
+    });
+  }
+  // Edges: connect each node to the two nearest nodes in the next "layer"
+  for (let i = 0; i < N; i++) {
+    const a = NODES[i];
+    const candidates = NODES
+      .map((b, j) => ({ j, d: Math.hypot(a.x - b.x, a.y - b.y) }))
+      .filter(o => o.j !== i && NODES[o.j].layer === (a.layer + 1) % 3)
+      .sort((p, q) => p.d - q.d)
+      .slice(0, 2);
+    for (const c of candidates) EDGES.push([i, c.j]);
+  }
+
+  function renderNet() {
+    const nodesG = document.getElementById('hait-nodes');
+    const edgesG = document.getElementById('hait-edges');
+    if (!nodesG || !edgesG) return;
+    let nodeHtml = '';
+    for (const n of NODES) {
+      nodeHtml += `<circle cx="${n.x.toFixed(1)}" cy="${n.y.toFixed(1)}" r="${n.r.toFixed(1)}"/>`;
+    }
+    nodesG.innerHTML = nodeHtml;
+    let edgeHtml = '';
+    for (const [i, j] of EDGES) {
+      const a = NODES[i], b = NODES[j];
+      edgeHtml += `<line x1="${a.x.toFixed(1)}" y1="${a.y.toFixed(1)}" x2="${b.x.toFixed(1)}" y2="${b.y.toFixed(1)}"/>`;
+    }
+    edgesG.innerHTML = edgeHtml;
+  }
+  renderNet();
+
+  // Pulse random edges to make the net feel alive
+  let activeEdges = new Set();
+  function pulse() {
+    const pulsesG = document.getElementById('hait-pulses');
+    const edgesG = document.getElementById('hait-edges');
+    if (!pulsesG || !edgesG) return;
+    // Pick a new random edge to light up
+    const idx = Math.floor(Math.random() * EDGES.length);
+    const [i, j] = EDGES[idx];
+    const a = NODES[i], b = NODES[j];
+    // Re-style edges: clear previous hot edge
+    const prevHot = edgesG.querySelectorAll('.hait-line-hot');
+    prevHot.forEach(e => e.classList.remove('hait-line-hot'));
+    const lines = edgesG.querySelectorAll('line');
+    if (lines[idx]) lines[idx].classList.add('hait-line-hot');
+    // Add a pulse marker traveling the edge
+    pulsesG.innerHTML = `<circle class="hait-pulse" r="3" cx="${a.x.toFixed(1)}" cy="${a.y.toFixed(1)}">
+      <animate attributeName="cx" from="${a.x.toFixed(1)}" to="${b.x.toFixed(1)}" dur="1.4s" repeatCount="indefinite"/>
+      <animate attributeName="cy" from="${a.y.toFixed(1)}" to="${b.y.toFixed(1)}" dur="1.4s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0;1;0" dur="1.4s" repeatCount="indefinite"/>
+    </circle>`;
+  }
+  setInterval(pulse, 900);
+
+  // ── Stage renderer ─────────────────────────────────────────
+  let current = 0;
+  const stageEl = document.getElementById('hait-stage');
+  const counterEl = document.getElementById('hait-counter');
+  const barEl = document.getElementById('hait-bar');
+  const backBtn = document.getElementById('hait-back');
+  const nextBtn = document.getElementById('hait-next');
+  const banner = document.getElementById('hait-banner');
+
+  function renderStage(i) {
+    const s = STAGES[i];
+    stageEl.classList.add('is-entering');
+    setTimeout(() => {
+      let pillsHtml = '';
+      if (s.pills && s.pills.length) {
+        pillsHtml = '<div class="hait-pill-row">' +
+          s.pills.map(p => '<span class="hait-pill">' + p + '</span>').join('') +
+          '</div>';
+      }
+      let quoteHtml = '';
+      if (s.quote) {
+        quoteHtml = '<div class="hait-quote">' + s.quote + '</div>';
+      }
+      stageEl.innerHTML =
+        '<div class="hait-stage-icon">' + s.icon + '</div>' +
+        '<div class="hait-stage-tag">' + s.tag + '</div>' +
+        '<h3>' + s.title + '</h3>' +
+        s.body + quoteHtml + pillsHtml;
+      counterEl.textContent = String(i + 1);
+      barEl.style.width = (((i + 1) / STAGES.length) * 100) + '%';
+      backBtn.disabled = (i === 0);
+      if (i === STAGES.length - 1) {
+        nextBtn.classList.remove('hait-btn-primary');
+        nextBtn.classList.add('hait-btn-complete');
+        nextBtn.textContent = 'Mark complete ✓';
+      } else {
+        nextBtn.classList.add('hait-btn-primary');
+        nextBtn.classList.remove('hait-btn-complete');
+        nextBtn.textContent = 'Next →';
+      }
+      stageEl.classList.remove('is-entering');
+    }, 220);
+  }
+
+  function goNext() {
+    if (current === STAGES.length - 1) {
+      recordCompletion();
+      return;
+    }
+    current = Math.min(STAGES.length - 1, current + 1);
+    renderStage(current);
+  }
+
+  function goBack() {
+    current = Math.max(0, current - 1);
+    renderStage(current);
+  }
+
+  backBtn.addEventListener('click', goBack);
+  nextBtn.addEventListener('click', goNext);
+
+  // ── Completion (single-fire) ───────────────────────────────
+  function recordCompletion() {
+    try {
+      if (nextBtn.getAttribute('data-completed') === 'true') return;
+      nextBtn.setAttribute('data-completed', 'true');
+      nextBtn.disabled = true;
+      nextBtn.textContent = '✓ Module completed';
+      if (banner) banner.classList.add('is-shown');
+      window.parent.postMessage({ type: 'complete' }, '*');
+    } catch (e) {
+      console.error('[hait] completion post failed', e);
+    }
+  }
+
+  // Keyboard nav — J/K or arrow keys
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowRight' || e.key === 'j' || e.key === 'J') { e.preventDefault(); goNext(); }
+    if (e.key === 'ArrowLeft'  || e.key === 'k' || e.key === 'K') { e.preventDefault(); goBack(); }
+  });
+
+  // Initial render
+  renderStage(0);
+})();
+</script>
+</body>
+</html>
