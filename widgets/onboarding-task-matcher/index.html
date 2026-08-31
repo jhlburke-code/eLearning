@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Onboarding a New Colleague</title>
+<link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; padding: 0 0 40px 0; background-color: transparent; }
+
+  #custom-container-od01,
+  #custom-container-od01 * { box-sizing: border-box; }
+
+  #custom-container-od01 {
+    font-family: 'Urbanist', sans-serif;
+    background-color: #F4F7FA;
+    max-width: 800px;
+    width: calc(100% - 32px);
+    margin: 24px auto;
+    border-radius: 8px;
+    padding: 32px;
+    color: #0F2347;
+    border: 1px solid #0F2347;
+  }
+
+  .od01-eyebrow { font-size: 13px; font-weight: 600; letter-spacing: 0.25em; text-transform: uppercase; color: #CC2229; margin: 0 0 8px; }
+  .od01-title { font-family: 'Urbanist', sans-serif; font-weight: 700; font-size: 28px; color: #1B3A6B; margin: 0 0 12px; line-height: 1.2; }
+  .od01-lede { font-size: 15px; line-height: 1.55; margin: 0 0 24px; color: rgba(15,35,71,0.85); }
+
+  .od01-section-heading {
+    font-family: 'Urbanist', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #1B3A6B;
+    margin: 24px 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .od01-section-heading::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: rgba(15,35,71,0.18);
+  }
+  .od01-section-heading .od01-count {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0;
+    text-transform: none;
+    background: #1B3A6B;
+    color: #FFFFFF;
+    padding: 2px 8px;
+    border-radius: 10px;
+  }
+
+  .od01-pool {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 16px;
+    background-color: rgba(27,58,107,0.05);
+    border: 1px dashed rgba(27,58,107,0.35);
+    border-radius: 6px;
+    min-height: 88px;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+  }
+  .od01-pool.is-empty {
+    background-color: rgba(27,58,107,0.02);
+    border-style: dashed;
+  }
+  .od01-pool.is-empty::before {
+    content: "All tasks placed — check your answers below";
+    color: rgba(15,35,71,0.5);
+    font-size: 13px;
+    font-style: italic;
+    align-self: center;
+    width: 100%;
+    text-align: center;
+  }
+  .od01-pool.is-drop-target,
+  .od01-bucket.is-drop-target {
+    background-color: rgba(204,34,41,0.05);
+    border-color: #CC2229;
+  }
+
+  .od01-task {
+    background-color: #FFFFFF;
+    border: 1px solid rgba(15,35,71,0.22);
+    border-radius: 4px;
+    padding: 10px 14px;
+    font-family: 'Urbanist', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: #0F2347;
+    cursor: grab;
+    user-select: none;
+    transition: border-color 0.15s ease, background-color 0.15s ease, transform 0.1s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    line-height: 1.3;
+  }
+  .od01-task:hover { border-color: #1B3A6B; }
+  .od01-task:focus-visible {
+    outline: 2px solid #CC2229;
+    outline-offset: 2px;
+  }
+  .od01-task.is-selected {
+    border: 2px solid #CC2229;
+    padding: 9px 13px;
+    background-color: rgba(204,34,41,0.04);
+  }
+  .od01-task.is-dragging {
+    opacity: 0.45;
+    cursor: grabbing;
+  }
+  .od01-task.is-correct {
+    border-color: #1B3A6B;
+    background-color: rgba(27,58,107,0.06);
+  }
+  .od01-task.is-wrong {
+    border-color: #CC2229;
+    background-color: rgba(204,34,41,0.06);
+  }
+  .od01-task .od01-task-mark {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 12px;
+    line-height: 1;
+  }
+  .od01-task.is-correct .od01-task-mark {
+    display: inline-flex;
+    background-color: #1B3A6B;
+    color: #FFFFFF;
+  }
+  .od01-task.is-correct .od01-task-mark::before { content: "\2713"; }
+  .od01-task.is-wrong .od01-task-mark {
+    display: inline-flex;
+    background-color: #CC2229;
+    color: #FFFFFF;
+  }
+  .od01-task.is-wrong .od01-task-mark::before { content: "\2715"; }
+
+  .od01-buckets {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 8px;
+  }
+  .od01-bucket {
+    background-color: #FFFFFF;
+    border: 2px dashed rgba(15,35,71,0.32);
+    border-radius: 6px;
+    padding: 14px;
+    min-height: 156px;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+    display: flex;
+    flex-direction: column;
+  }
+  .od01-bucket-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(15,35,71,0.12);
+  }
+  .od01-bucket-icon {
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    color: #1B3A6B;
+  }
+  .od01-bucket-title {
+    font-family: 'Urbanist', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    color: #1B3A6B;
+    flex: 1;
+  }
+  .od01-bucket-count {
+    font-size: 12px;
+    font-weight: 700;
+    background: rgba(15,35,71,0.08);
+    color: #0F2347;
+    padding: 2px 8px;
+    border-radius: 10px;
+  }
+  .od01-bucket-body {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    flex: 1;
+  }
+  .od01-bucket-hint {
+    font-size: 12px;
+    color: rgba(15,35,71,0.45);
+    align-self: center;
+    width: 100%;
+    text-align: center;
+    font-style: italic;
+  }
+  .od01-bucket.is-correct .od01-bucket-title::after {
+    content: " \2713";
+    color: #1B3A6B;
+  }
+
+  .od01-progress {
+    margin-top: 20px;
+    height: 6px;
+    background: rgba(15,35,71,0.12);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .od01-progress-fill {
+    height: 100%;
+    width: 0%;
+    background: #CC2229;
+    transition: width 0.3s ease;
+  }
+  .od01-progress-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 8px;
+    font-size: 13px;
+    color: rgba(15,35,71,0.78);
+  }
+  .od01-progress-meta strong { color: #1B3A6B; font-weight: 700; }
+
+  .od01-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  .od01-btn {
+    background-color: #1B3A6B;
+    color: #FFFFFF;
+    border: none;
+    padding: 12px 22px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    font-family: 'Urbanist', sans-serif;
+    border-radius: 4px;
+  }
+  .od01-btn:hover { background-color: #CC2229; }
+  .od01-btn:focus-visible {
+    outline: 2px solid #CC2229;
+    outline-offset: 2px;
+  }
+  .od01-btn[disabled] { opacity: 0.45; cursor: not-allowed; }
+  .od01-btn[disabled]:hover { background-color: #1B3A6B; }
+  .od01-btn--secondary {
+    background-color: transparent;
+    color: #1B3A6B;
+    border: 1px solid #1B3A6B;
+  }
+  .od01-btn--secondary:hover {
+    background-color: rgba(27,58,107,0.08);
+    color: #1B3A6B;
+  }
+  .od01-btn--secondary:focus-visible {
+    outline-color: #1B3A6B;
+  }
+
+  .od01-feedback {
+    display: none;
+    margin-top: 18px;
+    padding: 14px 16px;
+    border-radius: 4px;
+    font-size: 14px;
+    line-height: 1.45;
+  }
+  .od01-feedback.is-shown { display: block; }
+  .od01-feedback--ok {
+    background: rgba(27,58,107,0.08);
+    color: #1B3A6B;
+    border: 1px solid rgba(27,58,107,0.25);
+  }
+  .od01-feedback--partial {
+    background: rgba(204,34,41,0.07);
+    color: #0F2347;
+    border: 1px solid rgba(204,34,41,0.25);
+  }
+  .od01-feedback strong { color: #1B3A6B; }
+
+  .od01-complete-btn[data-completed="true"] {
+    background-color: #1B3A6B;
+    opacity: 1;
+    cursor: default;
+    pointer-events: none;
+  }
+  .od01-complete-btn[data-completed="true"]::before {
+    content: "\2713";
+    display: inline-block;
+    margin-right: 8px;
+    font-weight: 800;
+  }
+  .od01-complete-banner {
+    display: none;
+    margin-top: 12px;
+    padding: 10px 14px;
+    background: rgba(27,58,107,0.08);
+    color: #1B3A6B;
+    border: 1px solid rgba(27,58,107,0.22);
+    border-radius: 4px;
+    font-size: 14px;
+  }
+  .od01-complete-banner.is-shown { display: block; }
+
+  .od01-sr-status {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+    border: 0;
+  }
+
+  @media (max-width: 768px) {
+    #custom-container-od01 { width: calc(100% - 24px); margin: 12px auto; padding: 22px 16px; }
+    .od01-title { font-size: 23px; }
+    .od01-buckets { grid-template-columns: 1fr; }
+    .od01-btn { padding: 11px 18px; font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+<div id="custom-container-od01" role="region" aria-label="Onboarding a new colleague — drag-and-drop task matcher">
+  <p class="od01-eyebrow">People &amp; Culture &middot; Onboarding</p>
+  <h2 class="od01-title">Onboarding a New Colleague</h2>
+  <p class="od01-lede">Drag each task onto the time bucket where it belongs. You can also click a task, then click a bucket. Use Check answers to verify; drag any mis-placed task to a new bucket and try again.</p>
+
+  <h3 class="od01-section-heading">
+    <span>Tasks</span>
+    <span class="od01-count" id="od01-pool-count" aria-live="polite">12</span>
+  </h3>
+  <div class="od01-pool is-empty" id="od01-pool" data-zone-id="pool" role="list" aria-label="Task pool — drag tasks from here into a time bucket">
+    <button type="button" class="od01-task" draggable="true" data-task-id="t01" data-correct-bucket="bucket-d1" aria-pressed="false"><span class="od01-task-mark" aria-hidden="true"></span><span>Set up workstation &amp; logins</span></button>
+    <button type="button" class="od01-task" draggable="true" data-task-id="t02" data-correct-bucket="bucket-d1" aria-pressed="false"><span class="od01-task-mark" aria-hidden="true"></span><span>Meet your onboarding buddy</span></button>
+    <button type="button" class="od01-task" draggable="true" data-task-id="t03" data-correct-bucket="bucket-d1" aria-pressed="false"><span class="od01-task-mark" aria-hidden="true"></span><span>Tour the office or virtual space</span></button>
+    <button type="button" class="od01-task" draggable="true" data-task-id="t04" data-correct-bucket="bucket-w1" aria-pressed="false"><span class="od01-task-mark" aria-hidden="true"></span><span>Complete security &amp; compliance training</span></button>
+    <button type="button" class="od01-task" draggable="true" data-task-id="t05" data-correct-bucket="bucket-w1" aria-pressed="false"><span class="od01-task-mark" aria-hidden="true"></span><span>Read the team handbook</span></button>
+    <button type="button" class="od01-task" draggable="true" data-task-id="t06" data-correct-bucket="bucket-w1" aria-pressed="false"><span class="od01-task-mark" aria-hidden="true"></span><span>Schedule 1:1s with key teammates</span></button>
+    <button type="button" class="od01-task" draggable="true" data-task-id="t07" data-correct-bucket="bucket-m1" aria-pressed="false"><span class="od01-task-mark" aria-hidden="true"></span><span>Ship your first small deliverable</span></button>
+    <button type="button" class="od01-task" draggable="true" data-task-id="t08" data-correct-bucket="bucket-m1" aria-pressed="false"><span class="od01-task-mark" aria-hidden="true"></span><span>Document your role &amp; responsibilities</span></button>
+    <button type="button" class="od01-task" draggable="true" data-task-id="t09" data-correct-bucket="bucket-m1" aria-pressed="false"><span class="od01-task-mark" aria-hidden="true"></span><span>Join a cross-team project kickoff</span></button>
+    <button type="button" class="od01-task" draggable="true" data-task-id="t10" data-correct-bucket="bucket-q3" aria-pressed="false"><span class="od01-task-mark" aria-hidden="true"></span><span>Lead a small initiative</span></button>
+    <button type="button" class="od01-task" draggable="true" data-task-id="t11" data-correct-bucket="bucket-q3" aria-pressed="false"><span class="od01-task-mark" aria-hidden="true"></span><span>Set 6-month goals with your manager</span></button>
+    <button type="button" class="od01-task" draggable="true" data-task-id="t12" data-correct-bucket="bucket-q3" aria-pressed="false"><span class="od01-task-mark" aria-hidden="true"></span><span>Give feedback on the onboarding experience</span></button>
+  </div>
+
+  <h3 class="od01-section-heading">
+    <span>Time buckets</span>
+  </h3>
+  <div class="od01-buckets">
+    <div class="od01-bucket" id="bucket-d1" data-zone-id="bucket-d1" data-bucket-label="Day 1" role="list" aria-label="Day 1 time bucket — first-day tasks">
+      <div class="od01-bucket-header">
+        <svg class="od01-bucket-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+          <circle cx="12" cy="12" r="4"/>
+          <path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+        </svg>
+        <span class="od01-bucket-title">Day 1</span>
+        <span class="od01-bucket-count" data-count-for="bucket-d1">0</span>
+      </div>
+      <div class="od01-bucket-body" data-body-for="bucket-d1">
+        <span class="od01-bucket-hint">Drop tasks here</span>
+      </div>
+    </div>
+
+    <div class="od01-bucket" id="bucket-w1" data-zone-id="bucket-w1" data-bucket-label="Week 1" role="list" aria-label="Week 1 time bucket — first-week tasks">
+      <div class="od01-bucket-header">
+        <svg class="od01-bucket-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+          <rect x="3" y="5" width="18" height="17" rx="2"/>
+          <path d="M16 3v4M8 3v4M3 11h18"/>
+        </svg>
+        <span class="od01-bucket-title">Week 1</span>
+        <span class="od01-bucket-count" data-count-for="bucket-w1">0</span>
+      </div>
+      <div class="od01-bucket-body" data-body-for="bucket-w1">
+        <span class="od01-bucket-hint">Drop tasks here</span>
+      </div>
+    </div>
+
+    <div class="od01-bucket" id="bucket-m1" data-zone-id="bucket-m1" data-bucket-label="Month 1" role="list" aria-label="Month 1 time bucket — first-month tasks">
+      <div class="od01-bucket-header">
+        <svg class="od01-bucket-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+          <circle cx="12" cy="12" r="9"/>
+          <circle cx="12" cy="12" r="5"/>
+          <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
+        </svg>
+        <span class="od01-bucket-title">Month 1</span>
+        <span class="od01-bucket-count" data-count-for="bucket-m1">0</span>
+      </div>
+      <div class="od01-bucket-body" data-body-for="bucket-m1">
+        <span class="od01-bucket-hint">Drop tasks here</span>
+      </div>
+    </div>
+
+    <div class="od01-bucket" id="bucket-q3" data-zone-id="bucket-q3" data-bucket-label="90 Days" role="list" aria-label="90 Days time bucket — first-quarter tasks">
+      <div class="od01-bucket-header">
+        <svg class="od01-bucket-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+          <path d="M5 21V4"/>
+          <path d="M5 4h12l-2.5 4 2.5 4H5"/>
+        </svg>
+        <span class="od01-bucket-title">90 Days</span>
+        <span class="od01-bucket-count" data-count-for="bucket-q3">0</span>
+      </div>
+      <div class="od01-bucket-body" data-body-for="bucket-q3">
+        <span class="od01-bucket-hint">Drop tasks here</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="od01-progress" role="progressbar" aria-valuemin="0" aria-valuemax="12" aria-valuenow="0" aria-label="Tasks placed"><div class="od01-progress-fill" id="od01-progress-fill"></div></div>
+  <div class="od01-progress-meta"><span><strong id="od01-progress-current">0</strong> of <strong>12</strong> tasks placed</span><span id="od01-progress-status">Ready to sort</span></div>
+
+  <div class="od01-controls">
+    <button type="button" class="od01-btn" id="od01-check-btn">Check answers</button>
+    <button type="button" class="od01-btn od01-btn--secondary" id="od01-reset-btn">Reset</button>
+  </div>
+
+  <div class="od01-feedback" id="od01-feedback" role="status" aria-live="polite"></div>
+
+  <div class="od01-controls" style="margin-top: 18px;">
+    <button type="button" class="od01-btn od01-complete-btn" id="od01-complete-btn" disabled onclick="od01ReportCompletion()">Mark activity complete</button>
+  </div>
+  <div class="od01-complete-banner" id="od01-complete-banner" role="status" aria-live="polite"></div>
+
+  <div class="od01-sr-status" id="od01-sr-status" role="status" aria-live="polite"></div>
+</div>
+
+<script>
+(function(){
+  try {
+    var root = document.getElementById('custom-container-od01');
+    if (!root) { console.error('[od01] container missing'); return; }
+
+    var pool = root.querySelector('#od01-pool');
+    var buckets = Array.prototype.slice.call(root.querySelectorAll('.od01-bucket'));
+    var tasks = Array.prototype.slice.call(root.querySelectorAll('.od01-task'));
+    var checkBtn = root.querySelector('#od01-check-btn');
+    var resetBtn = root.querySelector('#od01-reset-btn');
+    var completeBtn = root.querySelector('#od01-complete-btn');
+    var fill = root.querySelector('#od01-progress-fill');
+    var cur = root.querySelector('#od01-progress-current');
+    var stat = root.querySelector('#od01-progress-status');
+    var poolCount = root.querySelector('#od01-pool-count');
+    var feedback = root.querySelector('#od01-feedback');
+    var bar = root.querySelector('[role="progressbar"]');
+    var sr = root.querySelector('#od01-sr-status');
+    var banner = root.querySelector('#od01-complete-banner');
+
+    var TOTAL = tasks.length;
+    var placement = {}; // taskId -> zoneId ('pool' | 'bucket-*')
+    var selectedTask = null;
+    var checked = false;
+
+    function setPlacement(task, zone) {
+      placement[task.getAttribute('data-task-id')] = zone.getAttribute('data-zone-id');
+    }
+    function getPlacement(task) {
+      return placement[task.getAttribute('data-task-id')] || 'pool';
+    }
+
+    function announce(msg) {
+      if (sr) sr.textContent = msg;
+    }
+
+    function updateChrome() {
+      var placedCount = 0;
+      var poolRemaining = 0;
+      buckets.forEach(function(b){
+        var n = b.querySelectorAll('.od01-task').length;
+        var c = b.querySelector('[data-count-for="' + b.getAttribute('data-zone-id') + '"]');
+        if (c) c.textContent = String(n);
+        if (n === 0) {
+          var body = b.querySelector('.od01-bucket-body');
+          if (body && !body.querySelector('.od01-bucket-hint')) {
+            var hint = document.createElement('span');
+            hint.className = 'od01-bucket-hint';
+            hint.textContent = 'Drop tasks here';
+            body.appendChild(hint);
+          }
+        } else {
+          var existing = b.querySelector('.od01-bucket-hint');
+          if (existing && existing.parentNode) existing.parentNode.removeChild(existing);
+        }
+      });
+      poolRemaining = pool.querySelectorAll('.od01-task').length;
+      placedCount = TOTAL - poolRemaining;
+      if (poolCount) poolCount.textContent = String(poolRemaining);
+      if (cur) cur.textContent = String(placedCount);
+      var pct = (placedCount / TOTAL) * 100;
+      if (fill) fill.style.width = pct + '%';
+      if (bar) bar.setAttribute('aria-valuenow', String(placedCount));
+
+      if (poolRemaining === 0) {
+        pool.classList.add('is-empty');
+      } else {
+        pool.classList.remove('is-empty');
+      }
+
+      if (placedCount === 0) {
+        if (stat) stat.textContent = 'Ready to sort';
+      } else if (placedCount < TOTAL) {
+        if (stat) stat.textContent = 'In progress';
+        if (completeBtn) completeBtn.disabled = true;
+      } else {
+        if (stat) stat.textContent = 'All placed — check your answers';
+        if (completeBtn && checked) completeBtn.disabled = false;
+      }
+    }
+
+    function clearCheckMarks() {
+      tasks.forEach(function(t){
+        t.classList.remove('is-correct', 'is-wrong');
+      });
+      buckets.forEach(function(b){ b.classList.remove('is-correct'); });
+      if (feedback) { feedback.classList.remove('is-shown', 'od01-feedback--ok', 'od01-feedback--partial'); feedback.textContent = ''; }
+      checked = false;
+      if (completeBtn) completeBtn.disabled = true;
+    }
+
+    function moveTaskTo(task, zone) {
+      if (!task || !zone) return;
+      var currentZone = task.parentNode;
+      if (currentZone === zone) return;
+      var body = zone.classList.contains('od01-bucket') ? zone.querySelector('.od01-bucket-body') : zone;
+      var destination = body || zone;
+      var hint = destination.querySelector('.od01-bucket-hint');
+      if (hint && hint.parentNode) hint.parentNode.removeChild(hint);
+      destination.appendChild(task);
+      setPlacement(task, zone);
+      task.classList.remove('is-correct', 'is-wrong');
+      if (checked) {
+        checked = false;
+        buckets.forEach(function(b){ b.classList.remove('is-correct'); });
+        if (feedback) { feedback.classList.remove('is-shown'); feedback.textContent = ''; }
+        if (completeBtn) completeBtn.disabled = true;
+      }
+      var zoneLabel = zone.getAttribute('data-bucket-label') || 'pool';
+      announce('Moved "' + task.textContent.trim() + '" to ' + zoneLabel + '.');
+      updateChrome();
+    }
+
+    function selectTask(task) {
+      if (selectedTask === task) {
+        task.classList.remove('is-selected');
+        task.setAttribute('aria-pressed', 'false');
+        selectedTask = null;
+        announce('Deselected ' + task.textContent.trim() + '.');
+        return;
+      }
+      if (selectedTask) {
+        selectedTask.classList.remove('is-selected');
+        selectedTask.setAttribute('aria-pressed', 'false');
+      }
+      selectedTask = task;
+      task.classList.add('is-selected');
+      task.setAttribute('aria-pressed', 'true');
+      announce('Selected ' + task.textContent.trim() + '. Now click a time bucket to place it.');
+    }
+
+    function clearSelection() {
+      if (selectedTask) {
+        selectedTask.classList.remove('is-selected');
+        selectedTask.setAttribute('aria-pressed', 'false');
+        selectedTask = null;
+      }
+    }
+
+    function getZoneFromTarget(t) {
+      var n = t;
+      while (n && n !== root) {
+        if (n.classList) {
+          if (n.classList.contains('od01-bucket')) return n;
+          if (n.classList.contains('od01-pool')) return n;
+        }
+        n = n.parentNode;
+      }
+      return null;
+    }
+
+    function checkAnswers() {
+      var correctCount = 0;
+      var wrongCount = 0;
+      var wrongBucketIds = {};
+      tasks.forEach(function(t){
+        var tid = t.getAttribute('data-task-id');
+        var correct = t.getAttribute('data-correct-bucket');
+        var current = getPlacement(t);
+        if (current === correct) {
+          t.classList.add('is-correct');
+          t.classList.remove('is-wrong');
+          correctCount++;
+        } else {
+          t.classList.add('is-wrong');
+          t.classList.remove('is-correct');
+          wrongCount++;
+          if (current && current.indexOf('bucket-') === 0) wrongBucketIds[current] = true;
+        }
+      });
+      buckets.forEach(function(b){
+        b.classList.remove('is-correct');
+        if (wrongBucketIds[b.getAttribute('data-zone-id')]) {
+          // bucket still has at least one wrong task — leave as is
+        } else if (b.querySelectorAll('.od01-task').length > 0) {
+          b.classList.add('is-correct');
+        }
+      });
+      checked = true;
+      if (feedback) {
+        feedback.classList.add('is-shown');
+        if (wrongCount === 0) {
+          feedback.classList.add('od01-feedback--ok');
+          feedback.classList.remove('od01-feedback--partial');
+          feedback.innerHTML = '<strong>All ' + TOTAL + ' correct.</strong> You can mark the activity complete below.';
+        } else {
+          feedback.classList.add('od01-feedback--partial');
+          feedback.classList.remove('od01-feedback--ok');
+          feedback.innerHTML = '<strong>' + correctCount + ' of ' + TOTAL + ' correct.</strong> Drag the highlighted tasks to a different bucket and check again.';
+        }
+      }
+      if (completeBtn) completeBtn.disabled = wrongCount !== 0;
+      updateChrome();
+      if (wrongCount === 0) {
+        announce('All ' + TOTAL + ' tasks placed correctly.');
+      } else {
+        announce(correctCount + ' of ' + TOTAL + ' tasks placed correctly.');
+      }
+    }
+
+    function resetAll() {
+      tasks.forEach(function(t){
+        pool.appendChild(t);
+        t.classList.remove('is-selected', 'is-correct', 'is-wrong');
+        t.setAttribute('aria-pressed', 'false');
+        placement[t.getAttribute('data-task-id')] = 'pool';
+      });
+      clearSelection();
+      clearCheckMarks();
+      updateChrome();
+      announce('Reset. Place each task into the right time bucket.');
+    }
+
+    // Drag handlers (per-task) — drag-drop needs source-side handlers
+    tasks.forEach(function(task){
+      task.addEventListener('dragstart', function(e){
+        e.dataTransfer.setData('text/plain', task.getAttribute('data-task-id'));
+        e.dataTransfer.effectAllowed = 'move';
+        task.classList.add('is-dragging');
+        clearSelection();
+      });
+      task.addEventListener('dragend', function(){
+        task.classList.remove('is-dragging');
+      });
+    });
+
+    // Drop zone handlers (per-zone) — dragenter/over/leave/drop are zone-side
+    var zones = [pool].concat(buckets);
+    zones.forEach(function(zone){
+      zone.addEventListener('dragenter', function(e){
+        e.preventDefault();
+        zone.classList.add('is-drop-target');
+      });
+      zone.addEventListener('dragover', function(e){
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        zone.classList.add('is-drop-target');
+      });
+      zone.addEventListener('dragleave', function(e){
+        // only remove when truly leaving the zone, not entering a child
+        var related = e.relatedTarget;
+        if (related && (zone.contains(related) || zone === related)) return;
+        zone.classList.remove('is-drop-target');
+      });
+      zone.addEventListener('drop', function(e){
+        e.preventDefault();
+        zone.classList.remove('is-drop-target');
+        var taskId = e.dataTransfer.getData('text/plain');
+        var task = root.querySelector('[data-task-id="' + taskId + '"]');
+        if (task) moveTaskTo(task, zone);
+      });
+    });
+
+    // Delegated click handler on root for: task select, bucket/pool place, buttons
+    root.addEventListener('click', function(e){
+      var target = e.target;
+      while (target && target !== root) {
+        if (target.classList && target.classList.contains('od01-task')) {
+          if (target.getAttribute('draggable') === 'true') selectTask(target);
+          return;
+        }
+        if (target.id === 'od01-check-btn') { checkAnswers(); return; }
+        if (target.id === 'od01-reset-btn') { resetAll(); return; }
+        if (target.classList && (target.classList.contains('od01-bucket') || target.classList.contains('od01-pool'))) {
+          if (selectedTask) {
+            moveTaskTo(selectedTask, target.classList.contains('od01-bucket') ? target : pool);
+            clearSelection();
+          }
+          return;
+        }
+        target = target.parentNode;
+      }
+    });
+
+    // Keyboard: arrow keys to move selected task between zones
+    document.addEventListener('keydown', function(e){
+      if (!selectedTask) return;
+      if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown' && e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      var current = selectedTask.parentNode;
+      var currentZone = current.classList.contains('od01-bucket-body') ? current.parentNode : current;
+      var allZones = zones.slice();
+      var idx = allZones.indexOf(currentZone);
+      if (idx < 0) return;
+      var nextIdx = idx;
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') nextIdx = (idx + 1) % allZones.length;
+      else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') nextIdx = (idx - 1 + allZones.length) % allZones.length;
+      if (nextIdx === idx) return;
+      e.preventDefault();
+      var dest = allZones[nextIdx];
+      var destBody = dest.classList.contains('od01-bucket') ? dest.querySelector('.od01-bucket-body') : dest;
+      var hint = destBody.querySelector('.od01-bucket-hint');
+      if (hint && hint.parentNode) hint.parentNode.removeChild(hint);
+      destBody.appendChild(selectedTask);
+      setPlacement(selectedTask, dest);
+      var zoneLabel = dest.getAttribute('data-bucket-label') || 'pool';
+      announce('Moved "' + selectedTask.textContent.trim() + '" to ' + zoneLabel + '.');
+      updateChrome();
+    });
+
+    // Completion postMessage (single-fire + visible ack)
+    window.od01ReportCompletion = function(){
+      try {
+        var b = document.getElementById('od01-complete-btn');
+        if (!b || b.getAttribute('data-completed') === 'true') return;
+        b.setAttribute('data-completed', 'true');
+        b.disabled = true;
+        b.textContent = 'Activity completed';
+        if (banner) {
+          banner.textContent = 'Completion recorded for your account. You can close this tab.';
+          banner.classList.add('is-shown');
+        }
+        window.parent.postMessage({ type: 'complete' }, '*');
+      } catch (e) {
+        console.error('[od01] completion post failed', e);
+      }
+    };
+
+    updateChrome();
+  } catch (err) {
+    console.error('[od01]', err);
+  }
+})();
+</script>
+</body>
+</html>
