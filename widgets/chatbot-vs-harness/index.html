@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chat Bot vs Agentic AI Harness — Cynex</title>
+<link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; padding: 0 0 40px 0; background-color: transparent; }
+
+  #custom-container-chatbot-vs-harness,
+  #custom-container-chatbot-vs-harness * { box-sizing: border-box; }
+
+  #custom-container-chatbot-vs-harness {
+    font-family: 'Urbanist', sans-serif;
+    background-color: #F4F7FA;
+    width: 100%;
+    margin: 0;
+    border-radius: 8px;
+    padding: 40px;
+    color: #0F2347;
+    border: 1px solid #0F2347;
+    line-height: 1.6;
+  }
+
+  .ct-header {
+    margin-bottom: 28px;
+  }
+  .ct-eyebrow {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #CC2229;
+    margin: 0 0 8px 0;
+  }
+  .ct-title {
+    font-size: 30px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: #1B3A6B;
+    margin: 0 0 8px 0;
+    line-height: 1.1;
+  }
+  .ct-subtitle {
+    font-size: 15px;
+    font-weight: 300;
+    color: #475569;
+    margin: 0;
+  }
+
+  /* Toggle pills */
+  .ct-toggle {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    background-color: #ffffff;
+    border: 1px solid #0F2347;
+    border-radius: 999px;
+    padding: 4px;
+    margin: 24px 0 28px 0;
+    position: relative;
+  }
+  .ct-toggle-btn {
+    background-color: transparent;
+    color: #1B3A6B;
+    border: none;
+    padding: 12px 16px;
+    font-family: 'Urbanist', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    cursor: pointer;
+    border-radius: 999px;
+    transition: background-color 200ms ease, color 200ms ease;
+    z-index: 1;
+  }
+  .ct-toggle-btn[aria-selected="true"] {
+    background-color: #1B3A6B;
+    color: #ffffff;
+  }
+  .ct-toggle-btn:focus-visible {
+    outline: 2px solid #CC2229;
+    outline-offset: 3px;
+  }
+
+  /* Info cards (panels) */
+  .ct-panel {
+    display: none;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 280ms ease, transform 280ms ease;
+  }
+  .ct-panel.is-active {
+    display: block;
+  }
+  .ct-panel.is-revealed {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .ct-card {
+    background-color: #ffffff;
+    border: 1px solid #0F2347;
+    border-top: 4px solid #CC2229;
+    border-radius: 8px;
+    padding: 28px;
+  }
+  .ct-card-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: #1B3A6B;
+    margin: 0 0 4px 0;
+    line-height: 1.2;
+  }
+  .ct-card-tag {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #CC2229;
+    margin: 0 0 6px 0;
+  }
+  .ct-card-summary {
+    font-size: 16px;
+    font-weight: 600;
+    color: #0F2347;
+    margin: 0 0 16px 0;
+  }
+  .ct-card-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 16px 0;
+  }
+  .ct-card-list li {
+    padding: 10px 0;
+    border-top: 1px solid #e5e7eb;
+    font-size: 14px;
+    color: #1e293b;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .ct-card-list li:first-child { border-top: none; }
+  .ct-card-list li::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: #CC2229;
+    margin-top: 9px;
+    flex-shrink: 0;
+  }
+  .ct-analogy {
+    background-color: #F4F7FA;
+    border-left: 3px solid #1B3A6B;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: #0F2347;
+    border-radius: 0 4px 4px 0;
+    margin: 0;
+  }
+  .ct-analogy strong {
+    color: #1B3A6B;
+    font-weight: 700;
+  }
+
+  /* Progress + complete */
+  .ct-progress-row {
+    margin: 28px 0 0 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .ct-progress-text {
+    font-size: 13px;
+    color: #475569;
+    margin: 0;
+  }
+  .ct-progress-text strong {
+    color: #1B3A6B;
+  }
+  .ct-complete-btn {
+    background-color: #CC2229;
+    color: #ffffff;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 999px;
+    font-family: 'Urbanist', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 200ms ease, transform 120ms ease, opacity 200ms ease;
+  }
+  .ct-complete-btn:hover:not(:disabled) {
+    background-color: #a91a20;
+  }
+  .ct-complete-btn:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+  .ct-complete-btn:focus-visible {
+    outline: 2px solid #1B3A6B;
+    outline-offset: 3px;
+  }
+  .ct-complete-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  @media (max-width: 768px) {
+    #custom-container-chatbot-vs-harness { padding: 24px 16px; }
+    .ct-title { font-size: 24px; }
+    .ct-toggle { grid-template-columns: 1fr; gap: 4px; border-radius: 16px; }
+    .ct-toggle-btn { padding: 10px 12px; }
+    .ct-card { padding: 20px; }
+    .ct-card-title { font-size: 18px; }
+  }
+</style>
+</head>
+<body>
+  <div id="custom-container-chatbot-vs-harness" role="region" aria-label="Chat Bot vs Agentic AI Harness">
+    <header class="ct-header">
+      <p class="ct-eyebrow">AI Literacy</p>
+      <h2 class="ct-title">Chat Bot vs Agentic AI Harness</h2>
+      <p class="ct-subtitle">Tap both sides to see the difference. Plain words, no jargon.</p>
+    </header>
+
+    <div role="tablist" aria-label="Comparison view" class="ct-toggle" id="ct-toggle">
+      <button role="tab" class="ct-toggle-btn" id="ct-tab-bot" aria-selected="true" aria-controls="ct-panel-bot" tabindex="0">
+        Chat Bot
+      </button>
+      <button role="tab" class="ct-toggle-btn" id="ct-tab-harness" aria-selected="false" aria-controls="ct-panel-harness" tabindex="-1">
+        Agentic AI Harness
+      </button>
+    </div>
+
+    <section role="tabpanel" id="ct-panel-bot" class="ct-panel is-active" aria-labelledby="ct-tab-bot">
+      <div class="ct-card">
+        <p class="ct-card-tag">Plain definition</p>
+        <h3 class="ct-card-title">Chat Bot</h3>
+        <p class="ct-card-summary">A program that talks back. You send text, it sends text. That's the whole job.</p>
+
+        <ul class="ct-card-list">
+          <li><span><strong>You ask. It answers.</strong> One question, one answer. No follow-through.</span></li>
+          <li><span><strong>Each conversation starts fresh.</strong> It doesn't remember what you said yesterday. It can't pick up where it left off.</span></li>
+          <li><span><strong>It can ONLY talk.</strong> It can write a paragraph but it can't open a browser, run code, send an email, or save a file.</span></li>
+          <li><span><strong>Best for:</strong> FAQ bots on websites, customer-service triage, "what's my order status" lookups, helping you write a sentence.</span></li>
+        </ul>
+
+        <p class="ct-analogy">
+          <strong>Like a librarian:</strong> it tells you which book has the answer, but it doesn't fetch it for you, doesn't read it to you, and doesn't take notes.
+        </p>
+      </div>
+    </section>
+
+    <section role="tabpanel" id="ct-panel-harness" class="ct-panel" aria-labelledby="ct-tab-harness" tabindex="0" hidden>
+      <div class="ct-card">
+        <p class="ct-card-tag">Plain definition</p>
+        <h3 class="ct-card-title">Agentic AI Harness</h3>
+        <p class="ct-card-summary">An AI system that takes a goal, plans the steps, and actually executes them using tools.</p>
+
+        <ul class="ct-card-list">
+          <li><span><strong>You give it a goal. It plans the steps.</strong> "Book me a flight to Tokyo under €500." It figures out what to search, what to compare, what to click.</span></li>
+          <li><span><strong>It can USE TOOLS.</strong> Read files. Write files. Run code. Search the web. Call APIs. Send emails. Edit spreadsheets. Open a browser. It picks the right tool for each step.</span></li>
+          <li><span><strong>It remembers state across the whole task.</strong> It knows what it's already tried, what worked, what didn't, and what's left.</span></li>
+          <li><span><strong>It actually DOES things.</strong> Not just talks about them. At the end of a run, files have been changed, emails have been sent, code has been pushed.</span></li>
+          <li><span><strong>Best for:</strong> Repetitive multi-step work — refactoring code, researching and summarising, building reports, automating workflows.</span></li>
+        </ul>
+
+        <p class="ct-analogy">
+          <strong>Like a personal assistant:</strong> you say "book me a flight to Tokyo under €500 next Tuesday" and they research the routes, compare the prices, book the ticket, and send you the confirmation. You don't have to micro-manage the steps.
+        </p>
+      </div>
+    </section>
+
+    <div class="ct-progress-row">
+      <p class="ct-progress-text">
+        You've explored <strong><span id="ct-viewed-count">0</span> of 2</strong> views.
+      </p>
+      <button type="button" class="ct-complete-btn" id="ct-complete-btn" disabled>
+        Mark as Complete
+      </button>
+    </div>
+  </div>
+
+  <script>
+  (function(){
+    try {
+      var SCOPE = 'chatbot-vs-harness';
+      var root = document.getElementById('custom-container-' + SCOPE);
+      if (!root) { console.error('[' + SCOPE + '] root not found'); return; }
+
+      var tabs = Array.prototype.slice.call(root.querySelectorAll('[role="tab"]'));
+      var panels = Array.prototype.slice.call(root.querySelectorAll('[role="tabpanel"]'));
+      var viewedCount = document.getElementById('ct-viewed-count');
+      var completeBtn = document.getElementById('ct-complete-btn');
+
+      var viewed = { bot: false, harness: false };
+      var allViewed = false;
+      var activeIdx = 0;
+
+      function show(idx) {
+        tabs.forEach(function(tab, i) {
+          var selected = i === idx;
+          tab.setAttribute('aria-selected', selected ? 'true' : 'false');
+          tab.setAttribute('tabindex', selected ? '0' : '-1');
+        });
+        panels.forEach(function(panel, i) {
+          if (i === idx) {
+            panel.hidden = false;
+            panel.classList.add('is-active');
+            requestAnimationFrame(function(){
+              requestAnimationFrame(function(){
+                panel.classList.add('is-revealed');
+              });
+            });
+          } else {
+            panel.classList.remove('is-active', 'is-revealed');
+            panel.hidden = true;
+          }
+        });
+        activeIdx = idx;
+        var key = (idx === 0) ? 'bot' : 'harness';
+        if (!viewed[key]) {
+          viewed[key] = true;
+          if (viewedCount) viewedCount.textContent = String((viewed.bot ? 1 : 0) + (viewed.harness ? 1 : 0));
+        }
+        if (!allViewed && viewed.bot && viewed.harness) {
+          allViewed = true;
+          if (completeBtn) {
+            completeBtn.disabled = false;
+            completeBtn.textContent = 'Mark as Complete';
+          }
+        }
+      }
+
+      tabs.forEach(function(tab, i) {
+        tab.addEventListener('click', function(){ show(i); });
+        tab.addEventListener('keydown', function(e){
+          var nextIdx;
+          if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { nextIdx = (i + 1) % tabs.length; }
+          else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { nextIdx = (i - 1 + tabs.length) % tabs.length; }
+          else if (e.key === 'Home') { nextIdx = 0; }
+          else if (e.key === 'End') { nextIdx = tabs.length - 1; }
+          if (typeof nextIdx === 'number') {
+            e.preventDefault();
+            tabs[nextIdx].focus();
+            show(nextIdx);
+          }
+        });
+      });
+
+      if (completeBtn) {
+        completeBtn.addEventListener('click', function(){
+          if (completeBtn.disabled) return;
+          try { window.parent.postMessage({ type: 'complete' }, '*'); }
+          catch (e) { console.error('[' + SCOPE + '] postMessage failed', e); }
+          completeBtn.disabled = true;
+          completeBtn.textContent = 'Completed ✓';
+        });
+      }
+
+      // Initial state: the Chat Bot view is shown by default, so it counts as viewed.
+      requestAnimationFrame(function(){
+        show(0);
+      });
+
+      // Expose completion fn for the rise-lms-bridge if needed.
+      window.chatbotVsHarnessReportCompletion = function(){
+        try { window.parent.postMessage({ type: 'complete' }, '*'); }
+        catch (e) { console.error('[' + SCOPE + '] postMessage failed', e); }
+      };
+    } catch (err) {
+      console.error('[chatbot-vs-harness]', err);
+    }
+  })();
+  </script>
+</body>
+</html>
