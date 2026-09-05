@@ -422,7 +422,20 @@
       // Initial state: the Chat Bot view is shown by default, so it counts as viewed.
       requestAnimationFrame(function(){
         show(0);
+        console.log('[chatbot-vs-harness] widget loaded, view=0, postMessage will fire after both tabs clicked');
       });
+
+      // Diagnostic: log postMessage attempts so the operator can verify
+      // via DevTools console whether the message fired.
+      var _origPostMessage = window.parent.postMessage.bind(window.parent);
+      window.parent.postMessage = function(msg, target) {
+        try {
+          console.log('[chatbot-vs-harness] postMessage:', JSON.stringify(msg), 'to', target);
+          return _origPostMessage(msg, target);
+        } catch (e) {
+          console.error('[chatbot-vs-harness] postMessage failed:', e);
+        }
+      };
 
       // Expose completion fn for the rise-lms-bridge if needed.
       window.chatbotVsHarnessReportCompletion = reportCompletion;
