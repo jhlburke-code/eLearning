@@ -51,7 +51,7 @@
     margin: 0;
   }
 
-  /* Tab list (semantic ARIA tablist) */
+  /* Tab list */
   .ct-tablist {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
@@ -71,14 +71,17 @@
     letter-spacing: 0.02em;
     cursor: pointer;
     border-radius: 4px;
-    transition: background-color 200ms ease, color 200ms ease, transform 120ms ease;
+    transition: background-color 200ms ease, color 200ms ease;
     text-align: center;
     line-height: 1.2;
   }
   .ct-tab:hover { background-color: rgba(27, 58, 107, 0.06); }
+
+  /* Strictly styling background and text color only - no inner borders */
   .ct-tab[aria-selected="true"] {
-    background-color: #1B3A6B;
-    color: #FFFFFF;
+    background-color: #1B3A6B !important;
+    color: #FFFFFF !important;
+    border-color: #1B3A6B !important;
   }
   .ct-tab:focus-visible {
     outline: 2px solid #CC2229;
@@ -110,7 +113,7 @@
   .ct-progress-bar {
     height: 100%;
     background-color: #CC2229;
-    width: 33.333%;
+    width: 0%;
     transition: width 360ms ease;
     border-radius: 2px;
   }
@@ -300,7 +303,7 @@
       </div>
     </section>
 
-    </div>
+  </div>
 
   <script>
   (function(){
