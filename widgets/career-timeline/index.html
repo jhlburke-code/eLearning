@@ -90,7 +90,7 @@
     font-size: 16px;
     font-weight: 800;
   }
-  .ct-tab .ct-tab-era {
+  .ct-tab .ct-tab-phase {
     display: block;
     font-size: 11px;
     font-weight: 600;
@@ -131,14 +131,14 @@
     transform: translateY(0);
   }
 
-  .ct-era-title {
+  .ct-phase-title {
     font-size: 22px;
     font-weight: 700;
     color: #1B3A6B;
     margin: 0 0 18px 0;
     line-height: 1.25;
   }
-  .ct-era-meta {
+  .ct-phase-meta {
     font-size: 12px;
     font-weight: 700;
     letter-spacing: 0.18em;
@@ -180,27 +180,6 @@
     line-height: 1.65;
   }
 
-  /* Completion ribbon */
-  .ct-complete-ribbon {
-    display: none;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    margin-top: 28px;
-    padding: 14px 20px;
-    background-color: #1B3A6B;
-    color: #FFFFFF;
-    border-radius: 4px;
-    font-weight: 700;
-    font-size: 14px;
-    letter-spacing: 0.04em;
-  }
-  .ct-complete-ribbon.is-visible { display: flex; }
-  .ct-complete-ribbon svg {
-    width: 18px; height: 18px;
-    stroke: #FFFFFF;
-  }
-
   @media (max-width: 768px) {
     #custom-container-career-timeline {
       width: calc(100% - 24px);
@@ -209,7 +188,7 @@
     }
     .ct-title { font-size: 24px; }
     .ct-tablist { grid-template-columns: 1fr; gap: 8px; }
-    .ct-era-title { font-size: 18px; }
+    .ct-phase-title { font-size: 18px; }
   }
 </style>
 </head>
@@ -218,21 +197,21 @@
     <header class="ct-header">
       <p class="ct-eyebrow">Professional Experience</p>
       <h2 class="ct-title">Career Timeline</h2>
-      <p class="ct-subtitle">From Ho Chi Minh City classrooms (2015) to enterprise AI enablement in Karlsruhe (today). Three eras, left to right.</p>
+      <p class="ct-subtitle">From Ho Chi Minh City classrooms (2015) to enterprise AI enablement in Karlsruhe (today). Three phases, left to right.</p>
     </header>
 
-    <div role="tablist" aria-label="Career eras" class="ct-tablist" id="ct-tablist">
+    <div role="tablist" aria-label="Career phases" class="ct-tablist" id="ct-tablist">
       <button role="tab" class="ct-tab" id="ct-tab-0" aria-selected="true" aria-controls="ct-panel-0" tabindex="0">
         <span class="ct-tab-yr">2015&ndash;2021</span>
-        <span class="ct-tab-era">Foundations</span>
+        <span class="ct-tab-phase">Foundations</span>
       </button>
       <button role="tab" class="ct-tab" id="ct-tab-1" aria-selected="false" aria-controls="ct-panel-1" tabindex="-1">
         <span class="ct-tab-yr">2016&ndash;2022</span>
-        <span class="ct-tab-era">L&amp;D &amp; HRIS</span>
+        <span class="ct-tab-phase">L&amp;D &amp; HRIS</span>
       </button>
       <button role="tab" class="ct-tab" id="ct-tab-2" aria-selected="false" aria-controls="ct-panel-2" tabindex="-1">
         <span class="ct-tab-yr">2022&ndash;Present</span>
-        <span class="ct-tab-era">Enterprise at IONOS</span>
+        <span class="ct-tab-phase">Technical Organizational Development</span>
       </button>
     </div>
 
@@ -241,8 +220,8 @@
     </div>
 
     <section role="tabpanel" id="ct-panel-0" class="ct-panel is-active" aria-labelledby="ct-tab-0" tabindex="0">
-      <p class="ct-era-meta">Era 1 &middot; Ho Chi Minh City</p>
-      <h3 class="ct-era-title">Foundations in Education &amp; Instructional Design</h3>
+      <p class="ct-phase-meta">Phase 1 &middot; Ho Chi Minh City</p>
+      <h3 class="ct-phase-title">Foundations in Education &amp; Instructional Design</h3>
 
       <div class="ct-role">
         <h4 class="ct-role-title">Instructional Designer &amp; Curriculum Lead</h4>
@@ -260,8 +239,8 @@
     </section>
 
     <section role="tabpanel" id="ct-panel-1" class="ct-panel" aria-labelledby="ct-tab-1" tabindex="0" hidden>
-      <p class="ct-era-meta">Era 2 &middot; L&amp;D at Scale &middot; HRIS</p>
-      <h3 class="ct-era-title">Expanding into L&amp;D Management &amp; HR Information Systems</h3>
+      <p class="ct-phase-meta">Phase 2 &middot; L&amp;D at Scale &middot; HRIS</p>
+      <h3 class="ct-phase-title">Expanding into L&amp;D Management &amp; HR Information Systems</h3>
 
       <div class="ct-role">
         <h4 class="ct-role-title">L&amp;D Operations Manager</h4>
@@ -279,8 +258,8 @@
     </section>
 
     <section role="tabpanel" id="ct-panel-2" class="ct-panel" aria-labelledby="ct-tab-2" tabindex="0" hidden>
-      <p class="ct-era-meta">Era 3 &middot; IONOS, Karlsruhe</p>
-      <h3 class="ct-era-title">Enterprise Scale &amp; Technical Transformation</h3>
+      <p class="ct-phase-meta">Phase 3 &middot; IONOS, Karlsruhe</p>
+      <h3 class="ct-phase-title">Enterprise Scale &amp; Technical Transformation</h3>
 
       <div class="ct-role">
         <h4 class="ct-role-title">Technical Organizational Development Manager</h4>
@@ -297,13 +276,7 @@
       </div>
     </section>
 
-    <div class="ct-complete-ribbon" id="ct-complete-ribbon" role="status" aria-live="polite">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <polyline points="20,6 9,17 4,12"/>
-      </svg>
-      <span>You&rsquo;ve reviewed the full timeline.</span>
     </div>
-  </div>
 
   <script>
   (function(){
@@ -315,7 +288,6 @@
       var tabs = Array.prototype.slice.call(root.querySelectorAll('[role="tab"]'));
       var panels = Array.prototype.slice.call(root.querySelectorAll('[role="tabpanel"]'));
       var progressBar = document.getElementById('ct-progress-bar');
-      var ribbon = document.getElementById('ct-complete-ribbon');
 
       var visited = { 0: true, 1: false, 2: false };
       var allVisited = false;
@@ -347,7 +319,6 @@
         visited[idx] = true;
         if (!allVisited && visited[0] && visited[1] && visited[2]) {
           allVisited = true;
-          if (ribbon) ribbon.classList.add('is-visible');
           window.careerTimelineReportCompletion();
         }
       }
