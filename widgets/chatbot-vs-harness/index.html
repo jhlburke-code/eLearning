@@ -209,6 +209,25 @@
     opacity: 0.4;
     cursor: not-allowed;
   }
+  .ct-complete-status {
+    margin: 12px 0 0 0;
+    padding: 12px 16px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 600;
+    display: none;
+  }
+  .ct-complete-status.is-visible { display: block; }
+  .ct-complete-status.is-pending {
+    background-color: #FFF8E1;
+    border-left: 3px solid #FFA000;
+    color: #5D4037;
+  }
+  .ct-complete-status.is-done {
+    background-color: #E8F5E9;
+    border-left: 3px solid #1B5E20;
+    color: #1B5E20;
+  }
 
   @media (max-width: 768px) {
     #custom-container-chatbot-vs-harness { padding: 24px 16px; }
@@ -278,12 +297,13 @@
 
     <div class="ct-progress-row">
       <p class="ct-progress-text">
-        You've explored <strong><span id="ct-viewed-count">0</span> of 2</strong> views.
+        You've explored <strong><span id="ct-viewed-count">0</span> of 2</span></strong> views.
       </p>
       <button type="button" class="ct-complete-btn" id="ct-complete-btn" disabled>
         Mark as Complete
       </button>
     </div>
+    <div class="ct-complete-status" id="ct-complete-status" role="status" aria-live="polite"></div>
   </div>
 
   <script>
@@ -297,10 +317,34 @@
       var panels = Array.prototype.slice.call(root.querySelectorAll('[role="tabpanel"]'));
       var viewedCount = document.getElementById('ct-viewed-count');
       var completeBtn = document.getElementById('ct-complete-btn');
+      var completeStatus = document.getElementById('ct-complete-status');
 
       var viewed = { bot: false, harness: false };
       var allViewed = false;
       var activeIdx = 0;
+      var completed = false;
+
+      function reportCompletion() {
+        if (completed) return;
+        completed = true;
+        if (completeBtn) {
+          completeBtn.disabled = true;
+          completeBtn.textContent = 'Completed ✓';
+        }
+        if (completeStatus) {
+          completeStatus.classList.remove('is-pending');
+          completeStatus.classList.add('is-visible', 'is-done');
+          completeStatus.textContent = '✓ Completion recorded. Your certificate will be emailed shortly.';
+        }
+        try {
+          window.parent.postMessage({ type: 'complete' }, '*');
+        } catch (e) {
+          console.error('[' + SCOPE + '] postMessage failed', e);
+          if (completeStatus) {
+            completeStatus.textContent = 'Completion saved locally but parent window did not receive it. Refresh the page if your certificate does not appear.';
+          }
+        }
+      }
 
       function show(idx) {
         tabs.forEach(function(tab, i) {
@@ -334,6 +378,17 @@
             completeBtn.disabled = false;
             completeBtn.textContent = 'Mark as Complete';
           }
+          // Auto-complete: once both views have been explored, fire the
+          // completion message. The button stays as a manual override for
+          // learners who want to confirm explicitly.
+          if (!completed) {
+            if (completeStatus) {
+              completeStatus.classList.remove('is-done');
+              completeStatus.classList.add('is-visible', 'is-pending');
+              completeStatus.textContent = 'Both views explored. Recording completion…';
+            }
+            setTimeout(reportCompletion, 900);
+          }
         }
       }
 
@@ -356,10 +411,11 @@
       if (completeBtn) {
         completeBtn.addEventListener('click', function(){
           if (completeBtn.disabled) return;
-          try { window.parent.postMessage({ type: 'complete' }, '*'); }
-          catch (e) { console.error('[' + SCOPE + '] postMessage failed', e); }
-          completeBtn.disabled = true;
-          completeBtn.textContent = 'Completed ✓';
+          // Cancel the pending auto-complete if the user clicks manually.
+          if (completeStatus && completeStatus.classList.contains('is-pending')) {
+            completeStatus.classList.remove('is-pending');
+          }
+          reportCompletion();
         });
       }
 
@@ -369,10 +425,7 @@
       });
 
       // Expose completion fn for the rise-lms-bridge if needed.
-      window.chatbotVsHarnessReportCompletion = function(){
-        try { window.parent.postMessage({ type: 'complete' }, '*'); }
-        catch (e) { console.error('[' + SCOPE + '] postMessage failed', e); }
-      };
+      window.chatbotVsHarnessReportCompletion = reportCompletion;
     } catch (err) {
       console.error('[chatbot-vs-harness]', err);
     }
