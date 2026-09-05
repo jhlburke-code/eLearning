@@ -225,7 +225,7 @@
       <div class="ct-progress-bar" id="ct-progress-bar"></div>
     </div>
 
-    <section role="tabpanel" id="ct-panel-0" class="ct-panel is-active" aria-labelledby="ct-tab-0" tabindex="0">
+    <section role="tabpanel" id="ct-panel-0" class="ct-panel" aria-labelledby="ct-tab-0" tabindex="0" hidden>
       <p class="ct-phase-meta">Phase 1 &middot; Ho Chi Minh City</p>
       <h3 class="ct-phase-title">Foundations in Education &amp; Instructional Design</h3>
 
@@ -313,18 +313,25 @@
       var panels = Array.prototype.slice.call(root.querySelectorAll('[role="tabpanel"]'));
       var progressBar = document.getElementById('ct-progress-bar');
 
-      var visited = { 0: true, 1: false, 2: false };
+      var visited = { 0: false, 1: false, 2: false };
       var allVisited = false;
+      var activeIdx = -1;
 
-      function activate(idx) {
+      function setProgress(idx) {
+        if (!progressBar) return;
+        if (idx < 0) { progressBar.style.width = '0%'; return; }
+        var pct = ((idx + 1) / tabs.length) * 100;
+        progressBar.style.width = pct + '%';
+      }
+
+      function show(idx) {
         tabs.forEach(function(tab, i) {
           var selected = i === idx;
           tab.setAttribute('aria-selected', selected ? 'true' : 'false');
           tab.setAttribute('tabindex', selected ? '0' : '-1');
         });
         panels.forEach(function(panel, i) {
-          var active = i === idx;
-          if (active) {
+          if (i === idx) {
             panel.hidden = false;
             panel.classList.add('is-active');
             requestAnimationFrame(function(){
@@ -337,8 +344,8 @@
             panel.hidden = true;
           }
         });
-        var pct = ((idx + 1) / tabs.length) * 100;
-        if (progressBar) progressBar.style.width = pct + '%';
+        activeIdx = idx;
+        setProgress(idx);
 
         visited[idx] = true;
         if (!allVisited && visited[0] && visited[1] && visited[2]) {
@@ -347,8 +354,30 @@
         }
       }
 
+      function hideAll() {
+        tabs.forEach(function(tab) {
+          tab.setAttribute('aria-selected', 'false');
+          tab.setAttribute('tabindex', '-1');
+        });
+        panels.forEach(function(panel) {
+          panel.classList.remove('is-active', 'is-revealed');
+          panel.hidden = true;
+        });
+        activeIdx = -1;
+        setProgress(-1);
+      }
+
+      function toggle(idx) {
+        if (idx === activeIdx) {
+          hideAll();
+          tabs[idx].focus();
+        } else {
+          show(idx);
+        }
+      }
+
       tabs.forEach(function(tab, i) {
-        tab.addEventListener('click', function(){ activate(i); });
+        tab.addEventListener('click', function(){ toggle(i); });
         tab.addEventListener('keydown', function(e){
           var nextIdx;
           if (e.key === 'ArrowRight') { nextIdx = (i + 1) % tabs.length; }
@@ -357,16 +386,10 @@
           else if (e.key === 'End') { nextIdx = tabs.length - 1; }
           if (typeof nextIdx === 'number') {
             e.preventDefault();
-            activate(nextIdx);
             tabs[nextIdx].focus();
+            show(nextIdx);
           }
         });
-      });
-
-      // initial panel reveal animation
-      requestAnimationFrame(function(){
-        var first = root.querySelector('#ct-panel-0');
-        if (first) first.classList.add('is-revealed');
       });
 
       window.careerTimelineReportCompletion = function(){
