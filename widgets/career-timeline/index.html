@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Career Timeline — Johannes Burke</title>
+<link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; padding: 0 0 40px 0; background-color: transparent; }
+
+  #custom-container-career-timeline,
+  #custom-container-career-timeline * { box-sizing: border-box; }
+
+  #custom-container-career-timeline {
+    font-family: 'Urbanist', sans-serif;
+    background-color: #F4F7FA;
+    max-width: 920px;
+    width: calc(100% - 32px);
+    margin: 24px auto;
+    border-radius: 8px;
+    padding: 40px;
+    color: #0F2347;
+    border: 1px solid #0F2347;
+    line-height: 1.6;
+  }
+
+  .ct-header {
+    margin-bottom: 32px;
+    border-bottom: 1px solid #cbd5e1;
+    padding-bottom: 20px;
+  }
+  .ct-eyebrow {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #CC2229;
+    margin: 0 0 8px 0;
+  }
+  .ct-title {
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: #1B3A6B;
+    margin: 0 0 6px 0;
+    line-height: 1.1;
+  }
+  .ct-subtitle {
+    font-size: 15px;
+    font-weight: 300;
+    color: #475569;
+    margin: 0;
+  }
+
+  /* Tab list (semantic ARIA tablist) */
+  .ct-tablist {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 0;
+    list-style: none;
+    padding: 0;
+  }
+  .ct-tab {
+    background-color: transparent;
+    color: #1B3A6B;
+    border: 1px solid #1B3A6B;
+    padding: 14px 12px;
+    font-family: 'Urbanist', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 200ms ease, color 200ms ease, transform 120ms ease;
+    text-align: center;
+    line-height: 1.2;
+  }
+  .ct-tab:hover { background-color: rgba(27, 58, 107, 0.06); }
+  .ct-tab[aria-selected="true"] {
+    background-color: #1B3A6B;
+    color: #FFFFFF;
+  }
+  .ct-tab:focus-visible {
+    outline: 2px solid #CC2229;
+    outline-offset: 3px;
+  }
+  .ct-tab .ct-tab-yr {
+    display: block;
+    font-size: 16px;
+    font-weight: 800;
+  }
+  .ct-tab .ct-tab-era {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-top: 4px;
+    opacity: 0.85;
+  }
+
+  /* Progress track */
+  .ct-progress {
+    height: 4px;
+    background-color: #cbd5e1;
+    border-radius: 2px;
+    overflow: hidden;
+    margin: 18px 0 28px 0;
+  }
+  .ct-progress-bar {
+    height: 100%;
+    background-color: #CC2229;
+    width: 33.333%;
+    transition: width 360ms ease;
+    border-radius: 2px;
+  }
+
+  /* Tab panels */
+  .ct-panel {
+    display: none;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 280ms ease, transform 280ms ease;
+  }
+  .ct-panel.is-active {
+    display: block;
+  }
+  .ct-panel.is-revealed {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .ct-era-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1B3A6B;
+    margin: 0 0 18px 0;
+    line-height: 1.25;
+  }
+  .ct-era-meta {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #CC2229;
+    margin: 0 0 6px 0;
+  }
+
+  .ct-role {
+    border-left: 3px solid #1B3A6B;
+    padding: 0 0 0 18px;
+    margin: 0 0 24px 0;
+  }
+  .ct-role:last-child { margin-bottom: 0; }
+  .ct-role-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #0F2347;
+    margin: 0 0 4px 0;
+  }
+  .ct-role-org {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1B3A6B;
+    margin: 0 0 4px 0;
+  }
+  .ct-role-dates {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    color: #64748b;
+    margin: 0 0 10px 0;
+  }
+  .ct-role-body {
+    font-size: 14px;
+    font-weight: 400;
+    color: #1e293b;
+    margin: 0;
+    line-height: 1.65;
+  }
+
+  /* Completion ribbon */
+  .ct-complete-ribbon {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 28px;
+    padding: 14px 20px;
+    background-color: #1B3A6B;
+    color: #FFFFFF;
+    border-radius: 4px;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.04em;
+  }
+  .ct-complete-ribbon.is-visible { display: flex; }
+  .ct-complete-ribbon svg {
+    width: 18px; height: 18px;
+    stroke: #FFFFFF;
+  }
+
+  @media (max-width: 768px) {
+    #custom-container-career-timeline {
+      width: calc(100% - 24px);
+      margin: 12px auto;
+      padding: 24px 16px;
+    }
+    .ct-title { font-size: 24px; }
+    .ct-tablist { grid-template-columns: 1fr; gap: 8px; }
+    .ct-era-title { font-size: 18px; }
+  }
+</style>
+</head>
+<body>
+  <div id="custom-container-career-timeline" role="region" aria-label="Career Timeline">
+    <header class="ct-header">
+      <p class="ct-eyebrow">Professional Experience</p>
+      <h2 class="ct-title">Career Timeline</h2>
+      <p class="ct-subtitle">From Ho Chi Minh City classrooms (2015) to enterprise AI enablement in Karlsruhe (today). Three eras, left to right.</p>
+    </header>
+
+    <div role="tablist" aria-label="Career eras" class="ct-tablist" id="ct-tablist">
+      <button role="tab" class="ct-tab" id="ct-tab-0" aria-selected="true" aria-controls="ct-panel-0" tabindex="0">
+        <span class="ct-tab-yr">2015&ndash;2021</span>
+        <span class="ct-tab-era">Foundations</span>
+      </button>
+      <button role="tab" class="ct-tab" id="ct-tab-1" aria-selected="false" aria-controls="ct-panel-1" tabindex="-1">
+        <span class="ct-tab-yr">2016&ndash;2022</span>
+        <span class="ct-tab-era">L&amp;D &amp; HRIS</span>
+      </button>
+      <button role="tab" class="ct-tab" id="ct-tab-2" aria-selected="false" aria-controls="ct-panel-2" tabindex="-1">
+        <span class="ct-tab-yr">2022&ndash;Present</span>
+        <span class="ct-tab-era">Enterprise at IONOS</span>
+      </button>
+    </div>
+
+    <div class="ct-progress" aria-hidden="true">
+      <div class="ct-progress-bar" id="ct-progress-bar"></div>
+    </div>
+
+    <section role="tabpanel" id="ct-panel-0" class="ct-panel is-active" aria-labelledby="ct-tab-0" tabindex="0">
+      <p class="ct-era-meta">Era 1 &middot; Ho Chi Minh City</p>
+      <h3 class="ct-era-title">Foundations in Education &amp; Instructional Design</h3>
+
+      <div class="ct-role">
+        <h4 class="ct-role-title">Instructional Designer &amp; Curriculum Lead</h4>
+        <p class="ct-role-org">The Asian International School</p>
+        <p class="ct-role-dates">Apr 2015 &ndash; Jul 2019</p>
+        <p class="ct-role-body">Established core instructional design and curriculum foundations by designing and delivering bilingual educational and instructional content, structuring learning objectives, building assessment frameworks, and producing multiformat content.</p>
+      </div>
+
+      <div class="ct-role">
+        <h4 class="ct-role-title">Curriculum Transformation Lead</h4>
+        <p class="ct-role-org">American Education Group / AEG Careers</p>
+        <p class="ct-role-dates">Aug 2019 &ndash; Dec 2021</p>
+        <p class="ct-role-body">Revamped traditional curricula to transition toward digital-first, technology-driven learning solutions, and spearheaded an organizational transformation toward a tech-first, fully remote learning environment ahead of broader industry shifts.</p>
+      </div>
+    </section>
+
+    <section role="tabpanel" id="ct-panel-1" class="ct-panel" aria-labelledby="ct-tab-1" tabindex="0" hidden>
+      <p class="ct-era-meta">Era 2 &middot; L&amp;D at Scale &middot; HRIS</p>
+      <h3 class="ct-era-title">Expanding into L&amp;D Management &amp; HR Information Systems</h3>
+
+      <div class="ct-role">
+        <h4 class="ct-role-title">L&amp;D Operations Manager</h4>
+        <p class="ct-role-org">VUS &ndash; The English Center</p>
+        <p class="ct-role-dates">Jul 2016 &ndash; Mar 2022</p>
+        <p class="ct-role-body">Managed large-scale learning operations by configuring, rolling out, and administering the Docebo LMS, overseeing content libraries, user provisioning, and adoption analytics, while facilitating L&amp;D programs, OD workshops, and change initiatives across multiple centers.</p>
+      </div>
+
+      <div class="ct-role">
+        <h4 class="ct-role-title">HRIS Implementation Lead</h4>
+        <p class="ct-role-org">Focus Learning Academy</p>
+        <p class="ct-role-dates">Dec 2021 &ndash; Apr 2022</p>
+        <p class="ct-role-body">Pivoted deeper into enterprise HR tech by leading the configuration, data migration, system setup, and user acceptance testing (UAT) for SAP SuccessFactors, supported by enablement programs to drive organizational adoption.</p>
+      </div>
+    </section>
+
+    <section role="tabpanel" id="ct-panel-2" class="ct-panel" aria-labelledby="ct-tab-2" tabindex="0" hidden>
+      <p class="ct-era-meta">Era 3 &middot; IONOS, Karlsruhe</p>
+      <h3 class="ct-era-title">Enterprise Scale &amp; Technical Transformation</h3>
+
+      <div class="ct-role">
+        <h4 class="ct-role-title">Technical Organizational Development Manager</h4>
+        <p class="ct-role-org">IONOS</p>
+        <p class="ct-role-dates">Apr 2022 &ndash; Oct 2023</p>
+        <p class="ct-role-body">Led the project management, technical scoping, and rollout of LumApps as the corporate intranet platform, and evaluated, configured, and delivered the end-to-end rollout of Cornerstone OnDemand as the company&rsquo;s new LMS and performance management system.</p>
+      </div>
+
+      <div class="ct-role">
+        <h4 class="ct-role-title">Senior Technical Organizational Development Manager</h4>
+        <p class="ct-role-org">IONOS</p>
+        <p class="ct-role-dates">Oct 2023 &ndash; Present</p>
+        <p class="ct-role-body">Expanded the portfolio to blend core platform administration (Cornerstone OnDemand) with advanced workforce enablement. Founded and runs the IONOS AI Academy&mdash;delivering curricula on Gemini, Claude, ChatGPT, n8n, prompt engineering, token economics, EU AI Act compliance, and agentic workflows for over 5,000 employees in close collaboration with engineers. Engineered hands-on AI implementations, including personal AI harnesses in VS Code, MCP integrations, and automated n8n workflows connecting LLMs to enterprise systems, alongside leading the end-to-end enablement workstream for a major corporate workspace migration to Nextcloud, Euro Office, and Gem.</p>
+      </div>
+    </section>
+
+    <div class="ct-complete-ribbon" id="ct-complete-ribbon" role="status" aria-live="polite">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <polyline points="20,6 9,17 4,12"/>
+      </svg>
+      <span>You&rsquo;ve reviewed the full timeline.</span>
+    </div>
+  </div>
+
+  <script>
+  (function(){
+    try {
+      var SCOPE = 'career-timeline';
+      var root = document.getElementById('custom-container-' + SCOPE);
+      if (!root) { console.error('[' + SCOPE + '] root not found'); return; }
+
+      var tabs = Array.prototype.slice.call(root.querySelectorAll('[role="tab"]'));
+      var panels = Array.prototype.slice.call(root.querySelectorAll('[role="tabpanel"]'));
+      var progressBar = document.getElementById('ct-progress-bar');
+      var ribbon = document.getElementById('ct-complete-ribbon');
+
+      var visited = { 0: true, 1: false, 2: false };
+      var allVisited = false;
+
+      function activate(idx) {
+        tabs.forEach(function(tab, i) {
+          var selected = i === idx;
+          tab.setAttribute('aria-selected', selected ? 'true' : 'false');
+          tab.setAttribute('tabindex', selected ? '0' : '-1');
+        });
+        panels.forEach(function(panel, i) {
+          var active = i === idx;
+          if (active) {
+            panel.hidden = false;
+            panel.classList.add('is-active');
+            requestAnimationFrame(function(){
+              requestAnimationFrame(function(){
+                panel.classList.add('is-revealed');
+              });
+            });
+          } else {
+            panel.classList.remove('is-active', 'is-revealed');
+            panel.hidden = true;
+          }
+        });
+        var pct = ((idx + 1) / tabs.length) * 100;
+        if (progressBar) progressBar.style.width = pct + '%';
+
+        visited[idx] = true;
+        if (!allVisited && visited[0] && visited[1] && visited[2]) {
+          allVisited = true;
+          if (ribbon) ribbon.classList.add('is-visible');
+          window.careerTimelineReportCompletion();
+        }
+      }
+
+      tabs.forEach(function(tab, i) {
+        tab.addEventListener('click', function(){ activate(i); });
+        tab.addEventListener('keydown', function(e){
+          var nextIdx;
+          if (e.key === 'ArrowRight') { nextIdx = (i + 1) % tabs.length; }
+          else if (e.key === 'ArrowLeft') { nextIdx = (i - 1 + tabs.length) % tabs.length; }
+          else if (e.key === 'Home') { nextIdx = 0; }
+          else if (e.key === 'End') { nextIdx = tabs.length - 1; }
+          if (typeof nextIdx === 'number') {
+            e.preventDefault();
+            activate(nextIdx);
+            tabs[nextIdx].focus();
+          }
+        });
+      });
+
+      // initial panel reveal animation
+      requestAnimationFrame(function(){
+        var first = root.querySelector('#ct-panel-0');
+        if (first) first.classList.add('is-revealed');
+      });
+
+      window.careerTimelineReportCompletion = function(){
+        try { window.parent.postMessage({ type: 'complete' }, '*'); }
+        catch (e) { console.error('[' + SCOPE + '] postMessage failed', e); }
+      };
+    } catch (err) {
+      console.error('[career-timeline]', err);
+    }
+  })();
+  </script>
+</body>
+</html>
