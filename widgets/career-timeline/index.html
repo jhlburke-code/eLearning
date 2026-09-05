@@ -53,7 +53,6 @@
 
   /* Tab list (semantic ARIA tablist) */
   .ct-tablist {
-    position: relative;
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     gap: 12px;
@@ -61,20 +60,6 @@
     list-style: none;
     padding: 0;
   }
-  .ct-tab-indicator {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    height: 3px;
-    width: calc((100% - 24px) / 3);
-    background-color: #cbd5e1;
-    transition: left 280ms cubic-bezier(0.4, 0, 0.2, 1), background-color 200ms ease;
-    pointer-events: none;
-    border-radius: 2px;
-  }
-  .ct-tablist[data-active="0"] .ct-tab-indicator { left: 0; background-color: #CC2229; }
-  .ct-tablist[data-active="1"] .ct-tab-indicator { left: calc((100% - 24px) / 3 + 12px); background-color: #CC2229; }
-  .ct-tablist[data-active="2"] .ct-tab-indicator { left: calc(2 * ((100% - 24px) / 3 + 12px)); background-color: #CC2229; }
   .ct-tab {
     background-color: transparent;
     color: #1B3A6B;
@@ -209,7 +194,6 @@
     }
     .ct-title { font-size: 24px; }
     .ct-tablist { grid-template-columns: 1fr; gap: 8px; }
-    .ct-tab-indicator { display: none; }
     .ct-phase-title { font-size: 18px; }
   }
 </style>
@@ -235,7 +219,6 @@
         <span class="ct-tab-yr">2022&ndash;Present</span>
         <span class="ct-tab-phase">Technical Org. Development</span>
       </button>
-      <div class="ct-tab-indicator" aria-hidden="true"></div>
     </div>
 
     <div class="ct-progress" aria-hidden="true">
@@ -329,7 +312,6 @@
       var tabs = Array.prototype.slice.call(root.querySelectorAll('[role="tab"]'));
       var panels = Array.prototype.slice.call(root.querySelectorAll('[role="tabpanel"]'));
       var progressBar = document.getElementById('ct-progress-bar');
-      var tablist = root.querySelector('.ct-tablist');
 
       var visited = { 0: false, 1: false, 2: false };
       var allVisited = false;
@@ -364,7 +346,6 @@
         });
         activeIdx = idx;
         setProgress(idx);
-        if (tablist) tablist.setAttribute('data-active', String(idx));
 
         visited[idx] = true;
         if (!allVisited && visited[0] && visited[1] && visited[2]) {
@@ -384,7 +365,6 @@
         });
         activeIdx = -1;
         setProgress(-1);
-        if (tablist) tablist.removeAttribute('data-active');
       }
 
       function toggle(idx) {
