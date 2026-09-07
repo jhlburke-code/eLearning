@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How an agentic AI harness works</title>
+<link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #1B3A6B;
+    --navy-deep: #0F2347;
+    --red: #CC2229;
+    --surface: #F4F7FA;
+    --white: #FFFFFF;
+    --muted: #65758D;
+    --line: #C9D4E1;
+    --soft-navy: #E7EDF3;
+    --green: #137333;
+    --green-bg: #E6F4EA;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    padding: 0 0 28px;
+    background: transparent;
+    color: var(--navy-deep);
+    font-family: 'Urbanist', 'Montserrat', Arial, sans-serif;
+  }
+  button { font: inherit; }
+
+  #custom-container-agentic-ai-harness {
+    position: relative;
+    width: calc(100% - 32px);
+    max-width: 800px;
+    margin: 24px auto;
+    overflow: hidden;
+    border: 1px solid var(--navy-deep);
+    border-radius: 12px;
+    background: var(--surface);
+    color: var(--navy-deep);
+  }
+
+  #custom-container-agentic-ai-harness::before {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 2;
+    width: 7px;
+    height: 100%;
+    background: var(--red);
+    content: '';
+  }
+
+  .aih-shell { padding: 27px 28px 25px 34px; }
+  .aih-topline {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 8px;
+    color: var(--navy);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+  }
+  .aih-brand { display: inline-flex; align-items: center; gap: 8px; }
+  .aih-brand-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--red);
+    box-shadow: 0 0 0 4px rgba(204,34,41,.13);
+  }
+  .aih-step-counter { color: var(--muted); letter-spacing: .08em; }
+  h1 {
+    margin: 0;
+    color: var(--navy-deep);
+    font-size: clamp(29px, 5vw, 42px);
+    font-weight: 800;
+    letter-spacing: -.045em;
+    line-height: 1.03;
+  }
+  .aih-intro {
+    margin: 8px 0 20px;
+    color: var(--muted);
+    font-size: 15px;
+  }
+
+  .aih-stage-nav {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 7px;
+    margin-bottom: 16px;
+  }
+  .aih-stage-button {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 8px;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    background: var(--white);
+    color: var(--navy);
+    cursor: pointer;
+    text-align: left;
+    transition: border-color .2s ease, background-color .2s ease, color .2s ease, transform .2s ease;
+  }
+  .aih-stage-button:hover,
+  .aih-stage-button:focus-visible {
+    border-color: var(--red);
+    outline: none;
+    transform: translateY(-1px);
+  }
+  .aih-stage-button[aria-current="step"] {
+    border-color: var(--navy);
+    background: var(--navy);
+    color: var(--white);
+  }
+  .aih-stage-button.is-visited:not([aria-current="step"]) { border-color: var(--navy); }
+  .aih-stage-number {
+    display: inline-grid;
+    flex: 0 0 25px;
+    width: 25px;
+    height: 25px;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--surface);
+    color: var(--navy);
+    font-size: 11px;
+    font-weight: 800;
+  }
+  .aih-stage-button[aria-current="step"] .aih-stage-number { background: var(--red); color: var(--white); }
+  .aih-stage-name {
+    overflow: hidden;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.1;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .aih-stage-button svg { display: block; flex: 0 0 20px; }
+
+  .aih-visual-wrap {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    background: var(--white);
+  }
+  .aih-visual-wrap::after {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: 4px;
+    background: var(--red);
+    content: '';
+  }
+  .aih-visual { display: block; width: 100%; height: auto; min-height: 260px; }
+  .aih-visual text { font-family: 'Urbanist', 'Montserrat', Arial, sans-serif; }
+  .aih-machine-line { fill: var(--white); stroke: var(--navy-deep); stroke-width: 2.5; }
+  .aih-soft-panel { fill: var(--surface); stroke: var(--line); stroke-width: 1.5; }
+  .aih-dark-panel { fill: var(--navy); stroke: var(--navy-deep); stroke-width: 2.5; }
+  .aih-red-panel { fill: var(--red); stroke: var(--navy-deep); stroke-width: 2.5; }
+  .aih-svg-label { fill: var(--navy-deep); font-size: 12px; font-weight: 800; letter-spacing: .02em; }
+  .aih-svg-small { fill: var(--muted); font-size: 9.5px; font-weight: 600; }
+  .aih-white-label { fill: var(--white); font-size: 12px; font-weight: 800; }
+  .aih-muted-label { fill: rgba(255,255,255,.7); font-size: 9.5px; font-weight: 600; }
+  .aih-ground { stroke: var(--navy-deep); stroke-width: 3; stroke-linecap: round; }
+
+  #aih-command-zone, #aih-connect-zone, #aih-build-zone, #aih-deploy-zone {
+    opacity: .28;
+    filter: saturate(.2);
+    transition: opacity .35s ease, filter .35s ease;
+  }
+  .stage-0 #aih-command-zone,
+  .stage-1 #aih-connect-zone,
+  .stage-2 #aih-build-zone,
+  .stage-3 #aih-deploy-zone {
+    opacity: 1;
+    filter: none;
+  }
+  .stage-0 #aih-command-zone { filter: drop-shadow(0 0 5px rgba(204,34,41,.2)); }
+  .stage-1 #aih-connect-zone { filter: drop-shadow(0 0 5px rgba(204,34,41,.2)); }
+  .stage-2 #aih-build-zone { filter: drop-shadow(0 0 5px rgba(204,34,41,.2)); }
+  .stage-3 #aih-deploy-zone { filter: drop-shadow(0 0 5px rgba(204,34,41,.2)); }
+
+  #aih-command-cursor { opacity: 0; }
+  #aih-connect-lines .aih-packet,
+  #aih-connect-lines .aih-packet-two,
+  #aih-connect-lines .aih-packet-three { opacity: 0; }
+  #aih-build-zone .aih-code-line { opacity: .25; }
+  #aih-cloud-arrow { stroke-dasharray: 8 8; }
+  #aih-deploy-check { opacity: 0; }
+
+  .stage-0 #aih-command-cursor { animation: aih-blink .85s step-end infinite; }
+  .stage-0 #aih-command-chip { animation: aih-command-pulse 1.8s ease-in-out infinite; }
+  .stage-1 #aih-connect-lines .aih-packet { animation: aih-packet 1.8s linear infinite; }
+  .stage-1 #aih-connect-lines .aih-packet-two { animation: aih-packet 1.8s linear .6s infinite; }
+  .stage-1 #aih-connect-lines .aih-packet-three { animation: aih-packet 1.8s linear 1.2s infinite; }
+  .stage-1 #aih-connect-zone .aih-tool-node { animation: aih-node-pulse 1.6s ease-in-out infinite; }
+  .stage-2 #aih-build-zone .aih-code-line { animation: aih-code-reveal 2.4s ease-in-out infinite; }
+  .stage-2 #aih-build-zone .aih-code-line:nth-child(2) { animation-delay: .25s; }
+  .stage-2 #aih-build-zone .aih-code-line:nth-child(3) { animation-delay: .5s; }
+  .stage-2 #aih-build-zone .aih-code-line:nth-child(4) { animation-delay: .75s; }
+  .stage-2 #aih-preview-screen { animation: aih-screen-pulse 1.9s ease-in-out infinite; }
+  .stage-3 #aih-cloud-arrow { animation: aih-upload 1.5s linear infinite; }
+  .stage-3 #aih-deploy-check { animation: aih-check-in .8s ease-out .25s both; }
+  .stage-3 #aih-url-pill { animation: aih-url-pulse 1.8s ease-in-out infinite; }
+
+  @keyframes aih-blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+  @keyframes aih-command-pulse { 0%, 100% { stroke-width: 1.5; } 50% { stroke-width: 3; } }
+  @keyframes aih-packet { 0% { opacity: 0; transform: translateX(-15px); } 15%, 75% { opacity: 1; } 100% { opacity: 0; transform: translateX(55px); } }
+  @keyframes aih-node-pulse { 0%, 100% { stroke-width: 2; } 50% { stroke-width: 3.5; } }
+  @keyframes aih-code-reveal { 0%, 15% { opacity: .25; } 45%, 75% { opacity: 1; } 100% { opacity: .25; } }
+  @keyframes aih-screen-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.015); } }
+  @keyframes aih-upload { to { stroke-dashoffset: -32; } }
+  @keyframes aih-check-in { from { opacity: 0; transform: scale(.5); } to { opacity: 1; transform: scale(1); } }
+  @keyframes aih-url-pulse { 0%, 100% { stroke-width: 1.5; } 50% { stroke-width: 3; } }
+
+  .aih-explanation {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 67px;
+    padding: 14px 16px;
+    background: var(--navy);
+    color: var(--white);
+  }
+  .aih-explanation-icon {
+    display: grid;
+    flex: 0 0 36px;
+    width: 36px;
+    height: 36px;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--red);
+  }
+  .aih-explanation-copy { min-width: 0; }
+  .aih-explanation-title { margin: 0 0 2px; font-size: 16px; font-weight: 800; }
+  .aih-explanation-text { margin: 0; color: rgba(255,255,255,.78); font-size: 13px; line-height: 1.35; }
+
+  .aih-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-top: 16px;
+  }
+  .aih-progress {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .aih-progress-dots { display: flex; gap: 4px; }
+  .aih-progress-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--line); }
+  .aih-progress-dot.is-done { background: var(--red); }
+  .aih-reset {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 42px;
+    padding: 8px 10px;
+    border: 1px solid transparent;
+    border-radius: 5px;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .aih-reset:hover, .aih-reset:focus-visible { border-color: var(--line); color: var(--red); outline: none; }
+  .aih-complete {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    padding: 9px 12px;
+    border: 1px solid var(--green);
+    border-radius: 5px;
+    background: var(--green-bg);
+    color: var(--green);
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .aih-complete.is-visible { display: flex; }
+
+  @media (max-width: 620px) {
+    #custom-container-agentic-ai-harness { width: calc(100% - 20px); margin: 12px auto; }
+    .aih-shell { padding: 22px 16px 19px 22px; }
+    .aih-topline { font-size: 9px; }
+    .aih-stage-nav { grid-template-columns: repeat(2, 1fr); }
+    .aih-stage-button { padding: 8px 7px; }
+    .aih-stage-name { font-size: 11px; }
+    .aih-visual { min-height: 0; }
+    .aih-controls { align-items: flex-start; flex-wrap: wrap; }
+    .aih-progress { order: 2; width: 100%; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: .001ms !important;
+      animation-iteration-count: 1 !important;
+      scroll-behavior: auto !important;
+      transition-duration: .001ms !important;
+    }
+  }
+</style>
+</head>
+<body>
+  <main id="custom-container-agentic-ai-harness" class="stage-0" role="region" aria-label="Interactive agentic AI harness simulator">
+    <div class="aih-shell">
+      <div class="aih-topline">
+        <span class="aih-brand"><span class="aih-brand-dot" aria-hidden="true"></span> Exploring AI in OD · Learning Lab</span>
+        <span class="aih-step-counter" id="aih-step-counter" aria-live="polite">STEP 1 OF 4</span>
+      </div>
+      <h1>From command to live app</h1>
+      <p class="aih-intro">Click a stage to see what an agentic AI harness does.</p>
+
+      <nav class="aih-stage-nav" aria-label="Agentic AI harness stages">
+        <button class="aih-stage-button" type="button" data-stage="0" aria-current="step" aria-label="Stage 1: Give the command">
+          <span class="aih-stage-number">1</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5h16v11H4zM8 20h8M12 16.5V20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="m7.5 10 2 2 3-3m2.5 3h2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="aih-stage-name">Give command</span>
+        </button>
+        <button class="aih-stage-button" type="button" data-stage="1" aria-label="Stage 2: Connect systems">
+          <span class="aih-stage-number">2</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="18" cy="7" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="18" cy="17" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m8.7 10.8 6.6-2.6m-6.6 5 6.6 2.7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <span class="aih-stage-name">Connect systems</span>
+        </button>
+        <button class="aih-stage-button" type="button" data-stage="2" aria-label="Stage 3: Build the app">
+          <span class="aih-stage-number">3</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 8-4 4 4 4m8-8 4 4-4 4M14 5l-4 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="aih-stage-name">Build app</span>
+        </button>
+        <button class="aih-stage-button" type="button" data-stage="3" aria-label="Stage 4: Deploy to the cloud">
+          <span class="aih-stage-number">4</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18h10.5a3.5 3.5 0 0 0 .5-7 6 6 0 0 0-11.4-1.5A4.3 4.3 0 0 0 7 18Z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 10v8m-3-3 3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="aih-stage-name">Deploy online</span>
+        </button>
+      </nav>
+
+      <div class="aih-visual-wrap">
+        <svg class="aih-visual" viewBox="0 0 760 370" role="img" aria-labelledby="aih-svg-title aih-svg-desc">
+          <title id="aih-svg-title">Four-stage agentic AI harness workflow</title>
+          <desc id="aih-svg-desc">A user gives a weather app command. An AI harness connects tools and systems, builds the app, and deploys it to the cloud for people to use.</desc>
+
+          <line class="aih-ground" x1="31" y1="337" x2="729" y2="337"/>
+
+          <g id="aih-command-zone">
+            <rect class="aih-machine-line" x="36" y="59" width="205" height="168" rx="10"/>
+            <rect class="aih-dark-panel" x="36" y="59" width="205" height="34" rx="10"/>
+            <path d="M36 83h205" stroke="#0F2347" stroke-width="2"/>
+            <circle cx="53" cy="76" r="4" fill="#CC2229"/><circle cx="66" cy="76" r="4" fill="#FFFFFF" opacity=".75"/><circle cx="79" cy="76" r="4" fill="#FFFFFF" opacity=".45"/>
+            <text class="aih-white-label" x="96" y="80">YOUR COMMAND</text>
+            <text class="aih-svg-small" x="53" y="119">Tell the AI what to make</text>
+            <rect id="aih-command-chip" x="53" y="135" width="171" height="58" rx="6" fill="#FFF5F5" stroke="#CC2229" stroke-width="1.5"/>
+            <text class="aih-svg-label" x="65" y="153">“Build a weather app</text>
+            <text class="aih-svg-label" x="65" y="169">for my team.”</text>
+            <rect id="aih-command-cursor" x="65" y="178" width="2" height="9" fill="#CC2229"/>
+            <circle cx="139" cy="211" r="7" fill="#CC2229"/>
+            <path d="M136 211h6m-3-3v6" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round"/>
+            <text class="aih-svg-small" x="151" y="215">plain language in</text>
+          </g>
+
+          <g id="aih-connect-zone">
+            <rect class="aih-dark-panel" x="274" y="50" width="211" height="245" rx="14"/>
+            <text class="aih-white-label" x="296" y="81">AI HARNESS</text>
+            <text class="aih-muted-label" x="296" y="98">plans · acts · checks</text>
+            <circle cx="380" cy="156" r="40" fill="#FFFFFF" opacity=".98"/>
+            <path d="M380 132v47m-24-23h48" stroke="#CC2229" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="380" cy="156" r="16" fill="none" stroke="#1B3A6B" stroke-width="2"/>
+            <path d="M380 116v-10m0 90v10m40-50h10m-90 0h-10" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" opacity=".7"/>
+            <text class="aih-white-label" x="335" y="222">ORCHESTRATOR</text>
+            <text class="aih-muted-label" x="329" y="240">the AI with tools</text>
+            <g id="aih-connect-lines">
+              <path d="M242 143h25" fill="none" stroke="#CC2229" stroke-width="3" stroke-linecap="round" stroke-dasharray="5 5"/>
+              <path d="M485 130h46M485 207h46" fill="none" stroke="#CC2229" stroke-width="3" stroke-linecap="round" stroke-dasharray="5 5"/>
+              <g class="aih-packet"><circle cx="250" cy="143" r="5" fill="#FFFFFF" stroke="#CC2229" stroke-width="2"/></g>
+              <g class="aih-packet-two"><circle cx="493" cy="130" r="5" fill="#FFFFFF" stroke="#CC2229" stroke-width="2"/></g>
+              <g class="aih-packet-three"><circle cx="493" cy="207" r="5" fill="#FFFFFF" stroke="#CC2229" stroke-width="2"/></g>
+            </g>
+            <g class="aih-tool-node">
+              <rect class="aih-soft-panel" x="533" y="101" width="174" height="57" rx="7"/>
+              <circle cx="557" cy="129" r="14" fill="#1B3A6B"/>
+              <path d="M551 129h12m-6-6v12" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round"/>
+              <text class="aih-svg-label" x="579" y="126">Weather API</text>
+              <text class="aih-svg-small" x="579" y="141">gets live conditions</text>
+            </g>
+            <g class="aih-tool-node">
+              <rect class="aih-soft-panel" x="533" y="178" width="174" height="57" rx="7"/>
+              <circle cx="557" cy="206" r="14" fill="#CC2229"/>
+              <path d="m551 206 4 4 8-9" fill="none" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              <text class="aih-svg-label" x="579" y="203">Code + browser</text>
+              <text class="aih-svg-small" x="579" y="218">writes and checks work</text>
+            </g>
+          </g>
+
+          <g id="aih-build-zone">
+            <rect class="aih-machine-line" x="36" y="259" width="205" height="58" rx="8"/>
+            <circle cx="59" cy="288" r="14" fill="#1B3A6B"/>
+            <path d="m52 289 5 5 9-11" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <text class="aih-svg-label" x="84" y="285">PLAN → BUILD → CHECK</text>
+            <text class="aih-svg-small" x="84" y="301">the harness keeps the loop moving</text>
+            <rect class="aih-soft-panel" x="518" y="253" width="211" height="78" rx="9"/>
+            <rect class="aih-dark-panel" x="518" y="253" width="211" height="20" rx="9"/>
+            <circle cx="532" cy="263" r="3" fill="#CC2229"/><text class="aih-muted-label" x="543" y="266">WEATHER.APP</text>
+            <g class="aih-code-line"><rect x="533" y="283" width="72" height="4" rx="2" fill="#CC2229"/><rect x="611" y="283" width="92" height="4" rx="2" fill="#C9D4E1"/></g>
+            <g class="aih-code-line"><rect x="533" y="295" width="45" height="4" rx="2" fill="#1B3A6B"/><rect x="584" y="295" width="112" height="4" rx="2" fill="#C9D4E1"/></g>
+            <g class="aih-code-line"><rect x="533" y="307" width="92" height="4" rx="2" fill="#CC2229"/><rect x="631" y="307" width="61" height="4" rx="2" fill="#C9D4E1"/></g>
+            <g class="aih-code-line"><rect x="533" y="319" width="56" height="4" rx="2" fill="#1B3A6B"/><rect x="595" y="319" width="99" height="4" rx="2" fill="#C9D4E1"/></g>
+            <rect id="aih-preview-screen" class="aih-machine-line" x="277" y="307" width="208" height="24" rx="5"/>
+            <circle cx="291" cy="319" r="5" fill="#CC2229"/><text class="aih-svg-small" x="304" y="323">weather app preview is ready</text>
+          </g>
+
+          <g id="aih-deploy-zone">
+            <rect class="aih-machine-line" x="278" y="50" width="207" height="53" rx="9"/>
+            <path d="M303 77h34m-8-8 8 8-8 8" fill="none" stroke="#CC2229" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <text class="aih-svg-label" x="351" y="74">PUBLISH</text>
+            <text class="aih-svg-small" x="351" y="89">send the app online</text>
+            <path id="aih-cloud-arrow" d="M380 104v-31" fill="none" stroke="#CC2229" stroke-width="3" stroke-linecap="round"/>
+            <path d="m373 80 7-7 7 7" fill="none" stroke="#CC2229" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            <path class="aih-soft-panel" d="M541 161a29 29 0 0 1 57-8 22 22 0 0 1 8-1c17 0 30 12 30 27s-13 27-30 27H541c-19 0-34-10-34-23s15-22 34-22Z"/>
+            <path d="M566 179h44m-22-15v30" stroke="#CC2229" stroke-width="2.5" stroke-linecap="round"/>
+            <text class="aih-svg-label" x="514" y="225">CLOUD</text>
+            <text class="aih-svg-small" x="514" y="240">a computer on the internet</text>
+            <rect id="aih-url-pill" class="aih-soft-panel" x="277" y="140" width="208" height="51" rx="8"/>
+            <circle cx="300" cy="165" r="12" fill="#137333"/>
+            <g id="aih-deploy-check"><path d="m294 165 4 4 8-9" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g>
+            <text class="aih-svg-label" x="322" y="163">weather-app.live</text>
+            <text class="aih-svg-small" x="322" y="178">anyone can use it</text>
+            <path d="M485 166h22" stroke="#CC2229" stroke-width="3" stroke-linecap="round" stroke-dasharray="5 5"/>
+          </g>
+        </svg>
+
+        <div class="aih-explanation" aria-live="polite">
+          <div class="aih-explanation-icon" aria-hidden="true">
+            <svg width="21" height="21" viewBox="0 0 24 24"><path id="aih-icon-path" d="M4 5.5h16v11H4zM8 20h8M12 16.5V20" fill="none" stroke="#FFFFFF" stroke-width="1.8" stroke-linejoin="round"/><path d="m7.5 10 2 2 3-3m2.5 3h2" fill="none" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="aih-explanation-copy">
+            <p class="aih-explanation-title" id="aih-explanation-title">1 · Give the command</p>
+            <p class="aih-explanation-text" id="aih-explanation-text">You describe the outcome: “Build a weather app for my team.”</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="aih-controls">
+        <div class="aih-progress" aria-label="Exploration progress">
+          <span class="aih-progress-dots" aria-hidden="true"><span class="aih-progress-dot is-done"></span><span class="aih-progress-dot"></span><span class="aih-progress-dot"></span><span class="aih-progress-dot"></span></span>
+          <span id="aih-progress-label">Explore the 4 stages</span>
+        </div>
+        <button class="aih-reset" id="aih-reset" type="button" aria-label="Reset simulation">
+          <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.3-5.6L4 8.7M4 4v4.7h4.7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Reset
+        </button>
+      </div>
+      <div class="aih-complete" id="aih-complete" role="status">
+        <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="m8 12 2.6 2.6L16.5 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        You have seen the full agentic AI loop.
+      </div>
+    </div>
+  </main>
+
+<script>
+(function () {
+  'use strict';
+  try {
+    var root = document.getElementById('custom-container-agentic-ai-harness');
+    if (!root) return;
+
+    var stages = [
+      {
+        title: '1 · Give the command',
+        text: 'You describe the outcome: “Build a weather app for my team.”',
+        icon: '<path id="aih-icon-path" d="M4 5.5h16v11H4zM8 20h8M12 16.5V20" fill="none" stroke="#FFFFFF" stroke-width="1.8" stroke-linejoin="round"/><path d="m7.5 10 2 2 3-3m2.5 3h2" fill="none" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>'
+      },
+      {
+        title: '2 · Connect the systems',
+        text: 'The harness gives the AI tools: a weather API, coding tools, and a browser to check its work.',
+        icon: '<circle id="aih-icon-path" cx="6" cy="12" r="3" fill="none" stroke="#FFFFFF" stroke-width="1.8"/><circle cx="18" cy="7" r="3" fill="none" stroke="#FFFFFF" stroke-width="1.8"/><circle cx="18" cy="17" r="3" fill="none" stroke="#FFFFFF" stroke-width="1.8"/><path d="m8.7 10.8 6.6-2.6m-6.6 5 6.6 2.7" fill="none" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round"/>'
+      },
+      {
+        title: '3 · Build the app',
+        text: 'The AI plans, writes code, runs checks, and fixes problems in a loop.',
+        icon: '<path id="aih-icon-path" d="m8 8-4 4 4 4m8-8 4 4-4 4M14 5l-4 14" fill="none" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>'
+      },
+      {
+        title: '4 · Deploy online',
+        text: 'The finished weather app is published to the cloud. Now other people can open it.',
+        icon: '<path id="aih-icon-path" d="M7 18h10.5a3.5 3.5 0 0 0 .5-7 6 6 0 0 0-11.4-1.5A4.3 4.3 0 0 0 7 18Z" fill="none" stroke="#FFFFFF" stroke-width="1.8"/><path d="M12 10v8m-3-3 3 3 3-3" fill="none" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>'
+      }
+    ];
+
+    var stageButtons = root.querySelectorAll('.aih-stage-button');
+    var progressDots = root.querySelectorAll('.aih-progress-dot');
+    var title = document.getElementById('aih-explanation-title');
+    var text = document.getElementById('aih-explanation-text');
+    var counter = document.getElementById('aih-step-counter');
+    var progressLabel = document.getElementById('aih-progress-label');
+    var complete = document.getElementById('aih-complete');
+    var reset = document.getElementById('aih-reset');
+    var currentStage = 0;
+    var visited = [true, false, false, false];
+    var completionSent = false;
+
+    function reportCompletion() {
+      if (completionSent) return;
+      completionSent = true;
+      complete.classList.add('is-visible');
+      progressLabel.textContent = 'Complete';
+      try {
+        window.parent.postMessage({ type: 'complete' }, '*');
+      } catch (err) {
+        console.error('[agentic-ai-harness] postMessage failed', err);
+      }
+    }
+
+    window.agenticAiHarnessReportCompletion = reportCompletion;
+
+    function markVisited(index) {
+      visited[index] = true;
+      stageButtons[index].classList.add('is-visited');
+      progressDots[index].classList.add('is-done');
+      var total = visited.filter(Boolean).length;
+      progressLabel.textContent = total === 4 ? 'Complete' : total + ' of 4 explored';
+      if (total === 4) reportCompletion();
+    }
+
+    function setStage(index) {
+      if (index < 0 || index > 3) return;
+      currentStage = index;
+      root.className = 'stage-' + index;
+      stageButtons.forEach(function (button, buttonIndex) {
+        if (buttonIndex === index) button.setAttribute('aria-current', 'step');
+        else button.removeAttribute('aria-current');
+      });
+      title.textContent = stages[index].title;
+      text.textContent = stages[index].text;
+      var icon = document.getElementById('aih-icon-path');
+      if (icon) icon.outerHTML = stages[index].icon;
+      counter.textContent = 'STEP ' + (index + 1) + ' OF 4';
+      markVisited(index);
+    }
+
+    root.addEventListener('click', function (event) {
+      var target = event.target;
+      while (target && target !== root) {
+        if (target.classList && target.classList.contains('aih-stage-button')) {
+          setStage(Number(target.getAttribute('data-stage')));
+          return;
+        }
+        target = target.parentNode;
+      }
+    });
+
+    reset.addEventListener('click', function () {
+      visited = [true, false, false, false];
+      completionSent = false;
+      complete.classList.remove('is-visible');
+      progressDots.forEach(function (dot, index) {
+        dot.classList.toggle('is-done', index === 0);
+      });
+      stageButtons.forEach(function (button, index) {
+        button.classList.toggle('is-visited', index === 0);
+      });
+      setStage(0);
+    });
+
+    stageButtons.forEach(function (button, index) {
+      button.addEventListener('keydown', function (event) {
+        if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
+          event.preventDefault();
+          stageButtons[(index + 1) % 4].focus();
+        }
+        if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
+          event.preventDefault();
+          stageButtons[(index + 3) % 4].focus();
+        }
+      });
+    });
+
+    setStage(0);
+  } catch (err) {
+    console.error('[agentic-ai-harness]', err);
+  }
+})();
+</script>
+</body>
+</html>
