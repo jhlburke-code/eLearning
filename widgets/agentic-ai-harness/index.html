@@ -63,7 +63,12 @@
     background: var(--red);
     box-shadow: 0 0 0 4px rgba(204,34,41,.13);
   }
-  .aiw-step-counter { color: var(--muted); letter-spacing: 0.08em; }
+  .aiw-step-counter {
+  color: var(--muted);
+  letter-spacing: 0.08em;
+  transition: opacity .2s ease;
+}
+.aiw-step-counter.is-fading { opacity: 0; }
 
   /* Title + intro */
   .aiw-title {
@@ -411,60 +416,67 @@
 
   /* Cloud card */
   .aiw-cloud {
+    position: relative;
     text-align: center;
     padding: 18px 14px 14px;
+    overflow: hidden;
   }
-  .aiw-cloud-shape {
-    width: 70px; height: 36px;
-    background: var(--line);
-    margin: 0 auto 8px;
-    border-radius: 18px 18px 18px 0;
-    transform: rotate(180deg);
+  .aiw-cloud-icon {
     position: relative;
+    width: 64px;
+    height: 30px;
+    margin: 0 auto 12px;
+    background: var(--line);
+    border-radius: 15px;
+    transition: background-color 0.3s ease;
   }
-  .aiw-cloud-shape::before {
+  .aiw-cloud-icon::before,
+  .aiw-cloud-icon::after {
     content: '';
     position: absolute;
-    width: 26px; height: 26px;
     background: var(--line);
     border-radius: 50%;
-    bottom: -2px; left: 8px;
+    bottom: 0;
+    transition: background-color 0.3s ease;
   }
-  .aiw-cloud-shape::after {
-    content: '';
-    position: absolute;
+  .aiw-cloud-icon::before {
+    width: 22px; height: 22px;
+    left: -10px;
+    bottom: -2px;
+  }
+  .aiw-cloud-icon::after {
     width: 18px; height: 18px;
-    background: var(--line);
-    border-radius: 50%;
-    top: 4px; right: 6px;
+    right: -6px;
+    bottom: 4px;
   }
   .aiw-cloud-plus {
     position: absolute;
-    left: 50%; top: 50%;
-    transform: translate(-50%, -50%) rotate(180deg);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     color: var(--red);
-    font-size: 20px;
+    font-size: 22px;
     font-weight: 800;
+    line-height: 1;
     z-index: 1;
-  }
-  .aiw-cloud {
-    position: relative;
-  }
-  .aiw-cloud-inner {
-    position: relative;
-    display: inline-block;
+    transition: color 0.3s ease;
   }
   .aiw-cloud h3 {
+    position: relative;
     font-size: 14px; font-weight: 800;
     color: var(--navy-deep);
     margin-bottom: 2px;
+    margin-top: 0;
   }
-  .aiw-cloud .muted { color: var(--muted); font-size: 12px; }
-  .stage-3 .aiw-cloud-shape,
-  .stage-3 .aiw-cloud-shape::before,
-  .stage-3 .aiw-cloud-shape::after {
-    background: var(--red);
+  .aiw-cloud .muted {
+    position: relative;
+    color: var(--muted);
+    font-size: 12px;
   }
+  .stage-3 .aiw-cloud-icon,
+  .stage-3 .aiw-cloud-icon::before,
+  .stage-3 .aiw-cloud-icon::after { background: var(--red); }
+  .stage-3 .aiw-cloud-plus { color: var(--white); }
   .stage-3 .aiw-cloud { animation: aiw-pulse 1.8s ease-in-out infinite .4s; }
 
   /* WEATHER.APP preview card */
@@ -552,8 +564,10 @@
     font-size: 18px;
     flex-shrink: 0;
   }
-  .aiw-explain-title { font-size: 15px; font-weight: 800; margin-bottom: 2px; }
-  .aiw-explain-text { font-size: 13px; color: rgba(255,255,255,.78); line-height: 1.35; }
+  .aiw-explain-title { font-size: 15px; font-weight: 800; margin-bottom: 2px; transition: opacity .2s ease; }
+  .aiw-explain-text { font-size: 13px; color: rgba(255,255,255,.78); line-height: 1.35; transition: opacity .2s ease; }
+  .aiw-explain-title.is-fading,
+  .aiw-explain-text.is-fading { opacity: 0; }
 
   /* Footer (progress + reset) */
   .aiw-footer {
@@ -750,11 +764,9 @@
         </article>
 
         <article class="aiw-card aiw-cloud" data-step="4" aria-label="Cloud deployment">
-          <span class="aiw-cloud-inner">
-            <span class="aiw-cloud-shape" aria-hidden="true">
-              <span class="aiw-cloud-plus">+</span>
-            </span>
-          </span>
+          <div class="aiw-cloud-icon" aria-hidden="true">
+            <span class="aiw-cloud-plus">+</span>
+          </div>
           <h3>CLOUD</h3>
           <p class="muted">a computer on the internet</p>
         </article>
@@ -787,7 +799,7 @@
           <span class="aiw-dot"></span>
           <span class="aiw-dot"></span>
         </span>
-        <span id="aiw-progress-label">Explore the 4 stages</span>
+        <span id="aiw-progress-label" style="transition: opacity .2s ease;">Explore the 4 stages</span>
       </div>
       <button class="aiw-reset" id="aiw-reset" type="button" aria-label="Reset simulation">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.3-5.6L4 8.7M4 4v4.7h4.7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -864,9 +876,20 @@
         else t.removeAttribute('aria-current');
         t.classList.toggle('is-active', j === i);
       });
-      explainTitle.textContent = stages[i].title;
-      explainText.textContent  = stages[i].text;
-      counter.textContent = 'STEP ' + (i + 1) + ' OF 4';
+      // Fade out current explanation, swap content, fade in
+      explainTitle.classList.add('is-fading');
+      explainText.classList.add('is-fading');
+      counter.classList.add('is-fading');
+      progressLabel.style.opacity = '0';
+      setTimeout(function() {
+        explainTitle.textContent = stages[i].title;
+        explainText.textContent  = stages[i].text;
+        counter.textContent = 'STEP ' + (i + 1) + ' OF 4';
+        explainTitle.classList.remove('is-fading');
+        explainText.classList.remove('is-fading');
+        counter.classList.remove('is-fading');
+        progressLabel.style.opacity = '1';
+      }, 200);
       markVisited(i);
     }
 
