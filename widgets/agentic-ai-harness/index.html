@@ -171,28 +171,22 @@
   .aih-muted-label { fill: rgba(255,255,255,.7); font-size: 9.5px; font-weight: 600; }
   .aih-ground { stroke: var(--navy-deep); stroke-width: 3; stroke-linecap: round; }
 
-  /* Each zone is hidden by default and shown only for its active step.
-     Previously: opacity .28 + filter saturate(.2) on inactive zones — dim cards
-     still occupied their SVG coordinates and stacked on top of each other (PUBLISH/URL
-     overlapping ORCHESTRATOR, cloud overlapping Code+browser, etc.). Replacing the
-     dim-with-display:block pattern with display:none prevents the overlap entirely
-     while keeping a fade-in animation for smoothness. */
   #aih-command-zone, #aih-connect-zone, #aih-build-zone, #aih-deploy-zone {
-    display: none;
+    opacity: .28;
+    filter: saturate(.2);
+    transition: opacity .35s ease, filter .35s ease;
   }
   .stage-0 #aih-command-zone,
   .stage-1 #aih-connect-zone,
   .stage-2 #aih-build-zone,
   .stage-3 #aih-deploy-zone {
-    display: inline;
-    filter: drop-shadow(0 0 5px rgba(204,34,41,.2));
-    animation: aih-zone-in .35s ease both;
+    opacity: 1;
+    filter: none;
   }
-
-  @keyframes aih-zone-in {
-    from { opacity: 0; }
-    to   { opacity: 1; }
-  }
+  .stage-0 #aih-command-zone { filter: drop-shadow(0 0 5px rgba(204,34,41,.2)); }
+  .stage-1 #aih-connect-zone { filter: drop-shadow(0 0 5px rgba(204,34,41,.2)); }
+  .stage-2 #aih-build-zone { filter: drop-shadow(0 0 5px rgba(204,34,41,.2)); }
+  .stage-3 #aih-deploy-zone { filter: drop-shadow(0 0 5px rgba(204,34,41,.2)); }
 
   #aih-command-cursor { opacity: 0; }
   #aih-connect-lines .aih-packet,
